@@ -1,0 +1,7 @@
+{
+  "name": "StyleDiff",
+  "description": "Identity-preserving virtual try-on and fashion editing powered by Gemini 2.5 Flash Image. Transform outfits while keeping facial features and body structure intact.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
