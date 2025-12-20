@@ -1,14 +1,14 @@
-
-import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
-
-const MODEL_NAME = 'gemini-2.5-flash-image';
-
 export const editFashionImage = async (
   sourceBase64: string,
   prompt: string,
   referenceBase64?: string
 ): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+  const apiKey = (process.env.TOGETHER_API_KEY as string);
+
+  if (!apiKey) {
+    console.warn("Together API Key is missing. Make sure TOGETHER_API_KEY is set.");
+    throw new Error("Together API Key is missing.");
+  }
 
   // Refine the prompt to emphasize identity preservation
   const systemContext = `IDENTITY-PRESERVING VIRTUAL TRY-ON MODE: 
@@ -17,52 +17,48 @@ export const editFashionImage = async (
   Only modify the clothing and accessories according to the user prompt. 
   Maintain photorealism and high resolution.`;
 
-  const parts = [
-    {
-      inlineData: {
-        data: sourceBase64.split(',')[1],
-        mimeType: 'image/png',
-      },
-    },
-    {
-      text: `${systemContext}\n\nUser Request: ${prompt}`
-    }
-  ];
-
-  if (referenceBase64) {
-    parts.push({
-      inlineData: {
-        data: referenceBase64.split(',')[1],
-        mimeType: 'image/png',
-      }
-    });
-    parts[1].text += "\n\nUse the provided reference garment image as the primary style source for the new outfit.";
-  }
+  const finalPrompt = `${systemContext}\n\nUser Request: ${prompt}${referenceBase64 ? "\n\nNote: Please refer to the style of the garments in the prompt description for the new outfit." : ""}`;
 
   try {
-    const response: GenerateContentResponse = await ai.models.generateContent({
-      model: MODEL_NAME,
-      contents: { parts },
+    const payload: any = {
+      model: "black-forest-labs/FLUX.2-pro",
+      prompt: finalPrompt,
+      image_url: sourceBase64,
+      width: 1024,
+      height: 768,
+      n: 1,
+      response_format: "url"
+    };
+
+    const response = await fetch("https://api.together.xyz/v1/images/generations", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
     });
 
-    let resultImageBase64 = '';
-    
-    if (response.candidates && response.candidates[0].content.parts) {
-      for (const part of response.candidates[0].content.parts) {
-        if (part.inlineData) {
-          resultImageBase64 = `data:image/png;base64,${part.inlineData.data}`;
-          break;
-        }
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error("Together AI API error:", response.status, errorData);
+      throw new Error(`Together AI API error: ${response.status} - ${JSON.stringify(errorData)}`);
+    }
+
+    const data = await response.json();
+
+    if (data.data && data.data[0]) {
+      if (data.data[0].url) {
+        return data.data[0].url;
+      }
+      if (data.data[0].b64_json) {
+        return `data:image/png;base64,${data.data[0].b64_json}`;
       }
     }
 
-    if (!resultImageBase64) {
-      throw new Error("No image data returned from Gemini.");
-    }
-
-    return resultImageBase64;
+    throw new Error("No image data returned from Together AI.");
   } catch (error) {
-    console.error("Gemini API Error:", error);
+    console.error("Together AI image generation failed:", error);
     throw error;
   }
 };
