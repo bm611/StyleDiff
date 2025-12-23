@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { GithubIcon, Dress01Icon, ImageUploadIcon, PencilEdit02Icon, SparklesIcon } from 'hugeicons-react';
-
-interface LandingPageProps {
-    onStart: () => void;
-    onSignIn: () => void;
-}
 
 interface Particle {
     id: number;
@@ -15,7 +11,7 @@ interface Particle {
     delay: number;
 }
 
-const LandingPage: React.FC<LandingPageProps> = ({ onStart, onSignIn }) => {
+const LandingPage: React.FC = () => {
     const [particles, setParticles] = useState<Particle[]>([]);
 
     useEffect(() => {
@@ -153,12 +149,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onSignIn }) => {
                         <GithubIcon size={16} />
                         GitHub
                     </a>
-                    <button
-                        onClick={onSignIn}
+                    <Link
+                        to="/app"
                         className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded-full hover:border-gray-300 hover:bg-gray-50 transition-all font-medium"
                     >
                         Sign In
-                    </button>
+                    </Link>
                 </div>
             </nav>
 
@@ -178,13 +174,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onSignIn }) => {
                 </p>
 
                 <div className="animate-fade-in delay-300">
-                    <button
-                        onClick={onStart}
-                        className="fancy-btn px-8 py-4 rounded-full text-white text-sm font-medium tracking-wide uppercase transition-all duration-500 hover:scale-105"
+                    <Link
+                        to="/app"
+                        className="fancy-btn px-8 py-4 rounded-full text-white text-sm font-medium tracking-wide uppercase transition-all duration-500 hover:scale-105 inline-block"
                         style={{ letterSpacing: '0.15em' }}
                     >
                         Start Designing
-                    </button>
+                    </Link>
                 </div>
             </div>
 
