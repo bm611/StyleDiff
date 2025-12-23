@@ -141,7 +141,7 @@ const LandingPage: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-3">
                     <a
-                        href="https://github.com"
+                        href="https://github.com/bm611/StyleDiff"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded-full hover:border-gray-300 hover:bg-gray-50 transition-all font-medium"
@@ -176,10 +176,17 @@ const LandingPage: React.FC = () => {
                 <div className="animate-fade-in delay-300">
                     <Link
                         to="/app"
-                        className="fancy-btn px-8 py-4 rounded-full text-white text-sm font-medium tracking-wide uppercase transition-all duration-500 hover:scale-105 inline-block"
+                        className="fancy-btn group relative px-10 py-4 rounded-full text-white text-sm font-medium tracking-wide uppercase transition-all duration-500 hover:scale-105 inline-block"
                         style={{ letterSpacing: '0.15em' }}
                     >
-                        Start Designing
+                        <span className="flex items-center justify-center transition-all duration-500 ease-out group-hover:-translate-y-[250%]">
+                            Start Designing
+                        </span>
+                        <span className="absolute inset-0 flex items-center justify-center transition-all duration-500 ease-out translate-y-[250%] group-hover:translate-y-0">
+                            <span className="animate-bounce" style={{ animationDuration: '2s' }}>
+                                <Dress01Icon size={24} />
+                            </span>
+                        </span>
                     </Link>
                 </div>
             </div>
