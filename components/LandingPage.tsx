@@ -166,7 +166,7 @@ const LandingPage: React.FC = () => {
                 </div>
 
                 <h1 className="animate-fade-in delay-100 text-5xl md:text-7xl font-medium tracking-tight mb-6 leading-[1.1]" style={{ fontFamily: "'Playfair Display', serif" }}>
-                    Reimagine your style
+                    Reimagine your <span className="italic">style</span>
                 </h1>
                 
                 <p className="animate-fade-in delay-200 text-2xl md:text-3xl text-gray-400 font-normal mb-12" style={{ fontFamily: "'Playfair Display', serif" }}>
