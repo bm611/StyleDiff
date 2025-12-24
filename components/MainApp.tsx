@@ -25,6 +25,12 @@ interface Particle {
 	delay: number;
 }
 
+interface Iteration {
+	sourceUrl: string;
+	resultUrl: string;
+	prompt: string;
+}
+
 const FASHION_SUGGESTIONS = [
 	{ label: 'Vintage Chanel', prompt: 'A vintage Chanel tweed suit in pastel pink.' },
 	{
@@ -56,6 +62,8 @@ export const MainApp: React.FC = () => {
 	});
 
 	const [particles, setParticles] = useState<Particle[]>([]);
+	const [iterations, setIterations] = useState<Iteration[]>([]);
+	const [iterationPrompt, setIterationPrompt] = useState<string>('');
 
 	useEffect(() => {
 		const generated: Particle[] = [];
@@ -97,6 +105,14 @@ export const MainApp: React.FC = () => {
 				timestamp: Date.now()
 			};
 
+			setIterations([
+				{
+					sourceUrl: state.sourceImage,
+					resultUrl,
+					prompt: state.prompt
+				}
+			]);
+
 			setState((prev) => ({
 				...prev,
 				isGenerating: false,
@@ -122,7 +138,47 @@ export const MainApp: React.FC = () => {
 			prompt: '',
 			error: null
 		}));
+		setIterations([]);
+		setIterationPrompt('');
 		setCurrentStep(1);
+	};
+
+	const handleIterate = async () => {
+		if (!state.currentResult || !iterationPrompt) return;
+
+		setState((prev) => ({ ...prev, isGenerating: true, error: null }));
+
+		try {
+			const resultUrl = await editFashionImage(
+				state.currentResult,
+				iterationPrompt,
+				state.referenceImage || undefined
+			);
+
+			setIterations((prev) => [
+				...prev,
+				{
+					sourceUrl: state.currentResult!,
+					resultUrl,
+					prompt: iterationPrompt
+				}
+			]);
+
+			setState((prev) => ({
+				...prev,
+				isGenerating: false,
+				currentResult: resultUrl,
+				prompt: iterationPrompt
+			}));
+
+			setIterationPrompt('');
+		} catch (err: any) {
+			setState((prev) => ({
+				...prev,
+				isGenerating: false,
+				error: err.message || 'Something went wrong while iterating. Please try again.'
+			}));
+		}
 	};
 
 	const nextStep = () => {
@@ -338,11 +394,21 @@ export const MainApp: React.FC = () => {
 
 									<div className="flex flex-wrap gap-4">
 										<button
-											onClick={() => {
-												const link = document.createElement('a');
-												link.href = state.currentResult!;
-												link.download = `stylediff-${Date.now()}.png`;
-												link.click();
+											onClick={async () => {
+												try {
+													const response = await fetch(state.currentResult!);
+													const blob = await response.blob();
+													const blobUrl = URL.createObjectURL(blob);
+													const link = document.createElement('a');
+													link.href = blobUrl;
+													link.download = `stylediff-${Date.now()}.png`;
+													document.body.appendChild(link);
+													link.click();
+													document.body.removeChild(link);
+													URL.revokeObjectURL(blobUrl);
+												} catch (err) {
+													window.open(state.currentResult!, '_blank');
+												}
 											}}
 											className="flex-1 min-w-[140px] px-6 py-3 bg-gray-900 text-white rounded-xl font-medium hover:bg-gray-800 transition-all flex items-center justify-center gap-2"
 										>
@@ -356,29 +422,81 @@ export const MainApp: React.FC = () => {
 										</button>
 									</div>
 
-									{/* Comparison Miniatures */}
-									<div className="pt-8 border-t border-gray-100">
-										<p className="text-sm font-semibold text-gray-400 mb-4 uppercase tracking-wider">
-											Transformation
+									{/* Iterate Further */}
+									<div className="pt-6 border-t border-gray-100">
+										<p className="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">
+											Iterate Further
 										</p>
-										<div className="flex gap-4">
-											<div className="w-20 h-28 rounded-lg overflow-hidden border border-gray-200 opacity-60">
-												<img
-													src={state.sourceImage!}
-													alt="Original"
-													className="w-full h-full object-cover"
-												/>
+										<div className="flex gap-3">
+											<textarea
+												value={iterationPrompt}
+												onChange={(e) => setIterationPrompt(e.target.value)}
+												placeholder="Describe additional changes..."
+												className="flex-1 h-20 rounded-xl bg-white border border-gray-200 p-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none shadow-sm text-sm"
+											/>
+											<button
+												onClick={handleIterate}
+												disabled={!iterationPrompt}
+												className={`px-4 py-2 h-20 bg-gray-900 text-white rounded-xl font-medium flex items-center justify-center gap-2 transition-all ${
+													!iterationPrompt
+														? 'opacity-50 cursor-not-allowed'
+														: 'hover:bg-gray-800'
+												}`}
+											>
+												<SparklesIcon size={18} /> Refine
+											</button>
+										</div>
+									</div>
+
+									{/* Transformations */}
+									<div className="pt-6 border-t border-gray-100">
+										<p className="text-sm font-semibold text-gray-400 mb-4 uppercase tracking-wider">
+											Transformations
+										</p>
+										<div className="flex gap-3 overflow-x-auto pb-2">
+											{/* Original */}
+											<div className="flex-shrink-0 text-center">
+												<div className="w-20 h-28 rounded-lg overflow-hidden border border-gray-200 opacity-60">
+													<img
+														src={state.sourceImage!}
+														alt="Original"
+														className="w-full h-full object-cover"
+													/>
+												</div>
+												<span className="text-[10px] text-gray-400 mt-1 block">Original</span>
 											</div>
-											<div className="flex items-center text-gray-300">
-												<ArrowRight01Icon size={20} />
-											</div>
-											<div className="w-20 h-28 rounded-lg overflow-hidden border border-blue-500 shadow-md">
-												<img
-													src={state.currentResult!}
-													alt="Result"
-													className="w-full h-full object-cover"
-												/>
-											</div>
+
+											{/* Each iteration */}
+											{iterations.map((iter, idx) => (
+												<React.Fragment key={idx}>
+													<div className="flex items-center text-gray-300 flex-shrink-0">
+														<ArrowRight01Icon size={16} />
+													</div>
+													<div className="flex-shrink-0 text-center max-w-[80px]">
+														<div
+															className={`w-20 h-28 rounded-lg overflow-hidden border shadow-sm ${
+																idx === iterations.length - 1
+																	? 'border-blue-500 shadow-md'
+																	: 'border-gray-200'
+															}`}
+														>
+															<img
+																src={iter.resultUrl}
+																alt={`Edit ${idx + 1}`}
+																className="w-full h-full object-cover"
+															/>
+														</div>
+														<span
+															className="text-[10px] text-gray-500 mt-1 block truncate"
+															title={iter.prompt}
+														>
+															{iter.prompt.length > 15
+																? iter.prompt.substring(0, 15) + '...'
+																: iter.prompt}
+														</span>
+													</div>
+												</React.Fragment>
+											))}
 										</div>
 									</div>
 								</div>
