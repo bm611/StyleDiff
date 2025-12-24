@@ -13,6 +13,7 @@ interface Particle {
 
 const LandingPage: React.FC = () => {
     const [particles, setParticles] = useState<Particle[]>([]);
+    const [activeTab, setActiveTab] = useState(0);
 
     useEffect(() => {
         const generated: Particle[] = [];
@@ -73,44 +74,100 @@ const LandingPage: React.FC = () => {
                 }
                 .step-card {
                     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                    background: white;
-                    border: 1px solid rgba(0,0,0,0.06);
-                    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+                    background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+                    border: 1.5px solid rgba(0,0,0,0.08);
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.05), 0 8px 24px rgba(0,0,0,0.02);
+                    backdrop-filter: blur(10px);
                 }
                 .step-card:hover {
-                    transform: translateY(-6px);
-                    box-shadow: 0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
-                    border-color: rgba(0,0,0,0.08);
+                    transform: translateY(-8px) scale(1.02);
+                    box-shadow: 0 16px 48px rgba(0,0,0,0.14), 0 8px 20px rgba(0,0,0,0.08);
+                    border-color: rgba(0,0,0,0.12);
+                    background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
                 }
                 .card-gradient {
                     position: absolute;
-                    bottom: 0;
-                    left: 0;
+                    top: 0;
                     right: 0;
-                    height: 50%;
-                    opacity: 0.5;
-                    transition: opacity 0.4s ease;
+                    width: 150px;
+                    height: 150px;
+                    opacity: 0.3;
+                    transition: all 0.4s ease;
+                    border-radius: 50%;
                 }
                 .step-card:hover .card-gradient {
-                    opacity: 0.7;
+                    opacity: 0.5;
+                    transform: scale(1.2);
                 }
                 .gradient-blue {
-                    background: linear-gradient(180deg, transparent 0%, rgba(56, 189, 248, 0.2) 50%, rgba(14, 165, 233, 0.3) 100%);
+                    background: radial-gradient(circle, rgba(56, 189, 248, 0.4) 0%, rgba(14, 165, 233, 0) 100%);
                 }
                 .gradient-purple {
-                    background: linear-gradient(180deg, transparent 0%, rgba(192, 132, 252, 0.2) 50%, rgba(168, 85, 247, 0.3) 100%);
+                    background: radial-gradient(circle, rgba(192, 132, 252, 0.4) 0%, rgba(168, 85, 247, 0) 100%);
                 }
                 .gradient-gold {
-                    background: linear-gradient(180deg, transparent 0%, rgba(234, 179, 8, 0.15) 50%, rgba(132, 204, 22, 0.25) 100%);
+                    background: radial-gradient(circle, rgba(234, 179, 8, 0.3) 0%, rgba(132, 204, 22, 0) 100%);
                 }
                 .card-number {
-                    font-size: 4rem;
-                    font-weight: 600;
-                    color: rgba(0,0,0,0.04);
+                    font-size: 3.5rem;
+                    font-weight: 700;
+                    background: linear-gradient(135deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.05) 100%);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
                     position: absolute;
                     bottom: 1rem;
                     right: 1.5rem;
                     line-height: 1;
+                    letter-spacing: -0.05em;
+                }
+                @keyframes slideInRight {
+                    from {
+                        opacity: 0;
+                        transform: translateX(30px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateX(0);
+                    }
+                }
+                @keyframes slideOutLeft {
+                    from {
+                        opacity: 1;
+                        transform: translateX(0);
+                    }
+                    to {
+                        opacity: 0;
+                        transform: translateX(-30px);
+                    }
+                }
+                .card-enter {
+                    animation: slideInRight 0.4s ease-out forwards;
+                }
+                .card-exit {
+                    animation: slideOutLeft 0.3s ease-in forwards;
+                }
+                .tab-button {
+                    transition: all 0.3s ease;
+                    position: relative;
+                    font-size: 1rem;
+                    font-weight: 600;
+                    padding: 0.75rem 1.5rem;
+                    border-radius: 50px;
+                    border: 1.5px solid rgba(0,0,0,0.1);
+                    background: transparent;
+                    color: rgba(0,0,0,0.5);
+                    cursor: pointer;
+                }
+                .tab-button:hover {
+                    border-color: rgba(0,0,0,0.2);
+                    background: rgba(0,0,0,0.02);
+                }
+                .tab-button.active {
+                    background: linear-gradient(135deg, #1a1a1a 0%, #333 50%, #1a1a1a 100%);
+                    color: white;
+                    border-color: transparent;
+                    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
                 }
             `}</style>
 
@@ -193,17 +250,18 @@ const LandingPage: React.FC = () => {
 
             {/* 3-Step Process Cards */}
             <div className="relative z-10 max-w-5xl mx-auto px-6 pb-24">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                {/* Desktop Grid View */}
+                <div className="hidden md:grid grid-cols-3 gap-5">
                     {/* Card 1 - Upload */}
                     <div className="step-card rounded-2xl overflow-hidden relative h-56">
                         <div className="p-5 relative z-10">
-                            <div className="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center mb-3">
-                                <ImageUploadIcon size={20} className="text-sky-500" />
+                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-100 to-blue-100 flex items-center justify-center mb-4 shadow-sm">
+                                <ImageUploadIcon size={24} className="text-sky-600" />
                             </div>
                             <h3 className="text-lg font-semibold text-gray-900 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
                                 Upload Your Look
                             </h3>
-                            <p className="text-gray-500 text-sm leading-relaxed">
+                            <p className="text-gray-600 text-sm leading-relaxed">
                                 Start with a photo of yourself as the base.
                             </p>
                         </div>
@@ -214,13 +272,13 @@ const LandingPage: React.FC = () => {
                     {/* Card 2 - Describe */}
                     <div className="step-card rounded-2xl overflow-hidden relative h-56">
                         <div className="p-5 relative z-10">
-                            <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center mb-3">
-                                <PencilEdit02Icon size={20} className="text-purple-500" />
+                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center mb-4 shadow-sm">
+                                <PencilEdit02Icon size={24} className="text-purple-600" />
                             </div>
                             <h3 className="text-lg font-semibold text-gray-900 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
                                 Describe Changes
                             </h3>
-                            <p className="text-gray-500 text-sm leading-relaxed">
+                            <p className="text-gray-600 text-sm leading-relaxed">
                                 Tell us the style or add a reference image.
                             </p>
                         </div>
@@ -231,18 +289,98 @@ const LandingPage: React.FC = () => {
                     {/* Card 3 - Generate */}
                     <div className="step-card rounded-2xl overflow-hidden relative h-56">
                         <div className="p-5 relative z-10">
-                            <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center mb-3">
-                                <SparklesIcon size={20} className="text-amber-500" />
+                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-100 to-yellow-100 flex items-center justify-center mb-4 shadow-sm">
+                                <SparklesIcon size={24} className="text-amber-600" />
                             </div>
                             <h3 className="text-lg font-semibold text-gray-900 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
                                 Get Your Style
                             </h3>
-                            <p className="text-gray-500 text-sm leading-relaxed">
+                            <p className="text-gray-600 text-sm leading-relaxed">
                                 Receive your new look and iterate further.
                             </p>
                         </div>
                         <div className="card-gradient gradient-gold"></div>
                         <span className="card-number">03</span>
+                    </div>
+                </div>
+
+                {/* Mobile Tab View */}
+                <div className="md:hidden">
+                    {/* Tab Buttons */}
+                    <div className="flex gap-3 justify-center mb-6">
+                        <button
+                            onClick={() => setActiveTab(0)}
+                            className={`tab-button ${activeTab === 0 ? 'active' : ''}`}
+                        >
+                            01
+                        </button>
+                        <button
+                            onClick={() => setActiveTab(1)}
+                            className={`tab-button ${activeTab === 1 ? 'active' : ''}`}
+                        >
+                            02
+                        </button>
+                        <button
+                            onClick={() => setActiveTab(2)}
+                            className={`tab-button ${activeTab === 2 ? 'active' : ''}`}
+                        >
+                            03
+                        </button>
+                    </div>
+
+                    {/* Card Display */}
+                    <div key={activeTab} className="card-enter">
+                        {activeTab === 0 && (
+                            <div className="step-card rounded-2xl overflow-hidden relative h-56">
+                                <div className="p-5 relative z-10">
+                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-100 to-blue-100 flex items-center justify-center mb-4 shadow-sm">
+                                        <ImageUploadIcon size={24} className="text-sky-600" />
+                                    </div>
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                                        Upload Your Look
+                                    </h3>
+                                    <p className="text-gray-600 text-sm leading-relaxed">
+                                        Start with a photo of yourself as the base.
+                                    </p>
+                                </div>
+                                <div className="card-gradient gradient-blue"></div>
+                                <span className="card-number">01</span>
+                            </div>
+                        )}
+                        {activeTab === 1 && (
+                            <div className="step-card rounded-2xl overflow-hidden relative h-56">
+                                <div className="p-5 relative z-10">
+                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center mb-4 shadow-sm">
+                                        <PencilEdit02Icon size={24} className="text-purple-600" />
+                                    </div>
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                                        Describe Changes
+                                    </h3>
+                                    <p className="text-gray-600 text-sm leading-relaxed">
+                                        Tell us the style or add a reference image.
+                                    </p>
+                                </div>
+                                <div className="card-gradient gradient-purple"></div>
+                                <span className="card-number">02</span>
+                            </div>
+                        )}
+                        {activeTab === 2 && (
+                            <div className="step-card rounded-2xl overflow-hidden relative h-56">
+                                <div className="p-5 relative z-10">
+                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-100 to-yellow-100 flex items-center justify-center mb-4 shadow-sm">
+                                        <SparklesIcon size={24} className="text-amber-600" />
+                                    </div>
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                                        Get Your Style
+                                    </h3>
+                                    <p className="text-gray-600 text-sm leading-relaxed">
+                                        Receive your new look and iterate further.
+                                    </p>
+                                </div>
+                                <div className="card-gradient gradient-gold"></div>
+                                <span className="card-number">03</span>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
