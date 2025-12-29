@@ -75,14 +75,15 @@ const LandingPage: React.FC = () => {
                 .step-card {
                     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
                     background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
-                    border: 1.5px solid rgba(0,0,0,0.08);
+                    border: 2.5px solid #4A192C;
+                    border-radius: 24px;
                     box-shadow: 0 2px 8px rgba(0,0,0,0.05), 0 8px 24px rgba(0,0,0,0.02);
                     backdrop-filter: blur(10px);
                 }
                 .step-card:hover {
                     transform: translateY(-8px) scale(1.02);
                     box-shadow: 0 16px 48px rgba(0,0,0,0.14), 0 8px 20px rgba(0,0,0,0.08);
-                    border-color: rgba(0,0,0,0.12);
+                    border-color: #4A192C;
                     background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
                 }
                 .card-gradient {
@@ -253,7 +254,7 @@ const LandingPage: React.FC = () => {
                 {/* Desktop Grid View */}
                 <div className="hidden md:grid grid-cols-3 gap-5">
                     {/* Card 1 - Upload */}
-                    <div className="step-card rounded-2xl overflow-hidden relative h-56">
+                    <div className="step-card overflow-hidden relative h-56">
                         <div className="p-5 relative z-10">
                             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-100 to-blue-100 flex items-center justify-center mb-4 shadow-sm">
                                 <ImageUploadIcon size={24} className="text-sky-600" />
@@ -270,7 +271,7 @@ const LandingPage: React.FC = () => {
                     </div>
 
                     {/* Card 2 - Describe */}
-                    <div className="step-card rounded-2xl overflow-hidden relative h-56">
+                    <div className="step-card overflow-hidden relative h-56">
                         <div className="p-5 relative z-10">
                             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center mb-4 shadow-sm">
                                 <PencilEdit02Icon size={24} className="text-purple-600" />
@@ -287,7 +288,7 @@ const LandingPage: React.FC = () => {
                     </div>
 
                     {/* Card 3 - Generate */}
-                    <div className="step-card rounded-2xl overflow-hidden relative h-56">
+                    <div className="step-card overflow-hidden relative h-56">
                         <div className="p-5 relative z-10">
                             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-100 to-yellow-100 flex items-center justify-center mb-4 shadow-sm">
                                 <SparklesIcon size={24} className="text-amber-600" />
@@ -331,7 +332,7 @@ const LandingPage: React.FC = () => {
                     {/* Card Display */}
                     <div key={activeTab} className="card-enter">
                         {activeTab === 0 && (
-                            <div className="step-card rounded-2xl overflow-hidden relative h-56">
+                            <div className="step-card overflow-hidden relative h-56">
                                 <div className="p-5 relative z-10">
                                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-100 to-blue-100 flex items-center justify-center mb-4 shadow-sm">
                                         <ImageUploadIcon size={24} className="text-sky-600" />
@@ -348,7 +349,7 @@ const LandingPage: React.FC = () => {
                             </div>
                         )}
                         {activeTab === 1 && (
-                            <div className="step-card rounded-2xl overflow-hidden relative h-56">
+                            <div className="step-card overflow-hidden relative h-56">
                                 <div className="p-5 relative z-10">
                                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center mb-4 shadow-sm">
                                         <PencilEdit02Icon size={24} className="text-purple-600" />
@@ -365,7 +366,7 @@ const LandingPage: React.FC = () => {
                             </div>
                         )}
                         {activeTab === 2 && (
-                            <div className="step-card rounded-2xl overflow-hidden relative h-56">
+                            <div className="step-card overflow-hidden relative h-56">
                                 <div className="p-5 relative z-10">
                                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-100 to-yellow-100 flex items-center justify-center mb-4 shadow-sm">
                                         <SparklesIcon size={24} className="text-amber-600" />
