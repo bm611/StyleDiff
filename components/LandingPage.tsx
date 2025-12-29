@@ -170,6 +170,25 @@ const LandingPage: React.FC = () => {
                     border-color: transparent;
                     box-shadow: 0 8px 24px rgba(0,0,0,0.15);
                 }
+                .nav-btn {
+                    border: 2.5px solid #4A192C;
+                    border-radius: 9999px;
+                    color: #4A192C;
+                    background: white;
+                    transition: all 0.3s ease;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    padding: 0.5rem 1rem;
+                    font-size: 0.875rem;
+                    font-weight: 500;
+                }
+                .nav-btn:hover {
+                    background: #4A192C;
+                    color: white;
+                    border-color: #4A192C;
+                    box-shadow: 0 4px 12px rgba(74, 25, 44, 0.2);
+                }
             `}</style>
 
             {/* Floating Particles */}
@@ -202,14 +221,14 @@ const LandingPage: React.FC = () => {
                         href="https://github.com/bm611/StyleDiff"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded-full hover:border-gray-300 hover:bg-gray-50 transition-all font-medium"
+                        className="nav-btn"
                     >
                         <GithubIcon size={16} />
                         GitHub
                     </a>
                     <Link
                         to="/app"
-                        className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-200 rounded-full hover:border-gray-300 hover:bg-gray-50 transition-all font-medium"
+                        className="nav-btn"
                     >
                         Sign In
                     </Link>

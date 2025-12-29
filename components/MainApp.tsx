@@ -219,7 +219,7 @@ export const MainApp: React.FC = () => {
 							<div className="mt-8 flex justify-center">
 								<button
 									onClick={nextStep}
-									className="fancy-btn px-8 py-3 rounded-full text-white text-sm font-medium tracking-wide uppercase flex items-center gap-2 hover:scale-105 transition-transform"
+									className="action-btn px-8 py-3 text-sm font-medium tracking-wide uppercase flex items-center gap-2 hover:scale-105 transition-transform"
 								>
 									Next Step <ArrowRight01Icon size={18} />
 								</button>
@@ -416,7 +416,7 @@ export const MainApp: React.FC = () => {
 										</button>
 										<button
 											onClick={handleReset}
-											className="flex-1 min-w-[140px] px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
+											className="flex-1 min-w-[140px] px-6 py-3 action-btn font-medium flex items-center justify-center gap-2"
 										>
 											<RefreshIcon size={18} /> Start Over
 										</button>
@@ -550,8 +550,8 @@ export const MainApp: React.FC = () => {
                 }
                 .generate-btn {
                     background: #ffffff;
-                    color: #000000;
-                    border: 1px solid rgba(0, 0, 0, 0.05);
+                    color: #4A192C;
+                    border: 2.5px solid #4A192C;
                     font-family: 'Cormorant Garamond', serif;
                     font-weight: 600;
                     font-size: 1.25rem;
@@ -565,7 +565,8 @@ export const MainApp: React.FC = () => {
                         0 16px 40px 0 rgba(0, 0, 0, 0.02);
                 }
                 .generate-btn:hover:not(:disabled) {
-                    background: #fcfcfc;
+                    background: #4A192C;
+                    color: #ffffff;
                     transform: translateY(-1px);
                     box-shadow:
                         0 2px 4px 0 rgba(91, 91, 91, 0.18),
@@ -582,6 +583,18 @@ export const MainApp: React.FC = () => {
                     color: #999;
                     cursor: not-allowed;
                     box-shadow: none;
+                    border-color: rgba(0,0,0,0.1);
+                }
+                .action-btn {
+                    border: 2.5px solid #4A192C;
+                    color: #4A192C;
+                    background: white;
+                    border-radius: 9999px;
+                    transition: all 0.3s ease;
+                }
+                .action-btn:hover {
+                    background: #4A192C;
+                    color: white;
                 }
             `}</style>
 
