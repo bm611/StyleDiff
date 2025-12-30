@@ -296,11 +296,10 @@ export const MainApp: React.FC = () => {
 							<button
 								onClick={handleGenerate}
 								disabled={!state.prompt}
-								className={`generate-btn w-full max-w-sm px-10 py-5 rounded-xl flex items-center justify-center gap-2 transition-all ${
-									!state.prompt
-										? 'opacity-50 cursor-not-allowed'
-										: 'hover:scale-[1.02] active:scale-[0.98]'
-								}`}
+								className={`generate-btn w-full max-w-sm px-10 py-5 rounded-xl flex items-center justify-center gap-2 transition-all ${!state.prompt
+									? 'opacity-50 cursor-not-allowed'
+									: 'hover:scale-[1.02] active:scale-[0.98]'
+									}`}
 							>
 								<SparklesIcon size={20} /> Generate Look
 							</button>
@@ -317,9 +316,8 @@ export const MainApp: React.FC = () => {
 							<button
 								onClick={handleGenerate}
 								disabled={!state.prompt}
-								className={`generate-btn w-full px-8 py-5 rounded-xl flex items-center justify-center gap-2 transition-all ${
-									!state.prompt ? 'opacity-50 cursor-not-allowed' : 'active:scale-[0.98]'
-								}`}
+								className={`generate-btn w-full px-8 py-5 rounded-xl flex items-center justify-center gap-2 transition-all ${!state.prompt ? 'opacity-50 cursor-not-allowed' : 'active:scale-[0.98]'
+									}`}
 							>
 								<SparklesIcon size={20} /> Generate Look
 							</button>
@@ -337,9 +335,13 @@ export const MainApp: React.FC = () => {
 					<div className="animate-fade-in max-w-5xl mx-auto text-center">
 						{state.isGenerating ? (
 							<div className="py-20">
-								<div className="w-24 h-24 mx-auto mb-8 relative">
-									<div className="absolute inset-0 rounded-full border-4 border-blue-100"></div>
-									<div className="absolute inset-0 rounded-full border-4 border-t-blue-500 animate-spin"></div>
+								<div className="w-24 h-24 mx-auto mb-8 relative flex items-center justify-center">
+									{/* Pulsing glow effect */}
+									<div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#4A192C]/20 to-[#6B2C42]/20 animate-pulse"></div>
+									{/* Spinning logo container */}
+									<div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#4A192C] to-[#6B2C42] flex items-center justify-center shadow-xl shadow-[#4A192C]/30 animate-spin" style={{ animationDuration: '2s' }}>
+										<Dress01Icon size={36} className="text-white" />
+									</div>
 								</div>
 								<h2
 									className="text-2xl font-medium mb-3"
@@ -437,11 +439,10 @@ export const MainApp: React.FC = () => {
 											<button
 												onClick={handleIterate}
 												disabled={!iterationPrompt}
-												className={`px-4 py-2 h-20 bg-gray-900 text-white rounded-xl font-medium flex items-center justify-center gap-2 transition-all ${
-													!iterationPrompt
-														? 'opacity-50 cursor-not-allowed'
-														: 'hover:bg-gray-800'
-												}`}
+												className={`px-4 py-2 h-20 bg-gray-900 text-white rounded-xl font-medium flex items-center justify-center gap-2 transition-all ${!iterationPrompt
+													? 'opacity-50 cursor-not-allowed'
+													: 'hover:bg-gray-800'
+													}`}
 											>
 												<SparklesIcon size={18} /> Refine
 											</button>
@@ -474,11 +475,10 @@ export const MainApp: React.FC = () => {
 													</div>
 													<div className="flex-shrink-0 text-center max-w-[80px]">
 														<div
-															className={`w-20 h-28 rounded-lg overflow-hidden border shadow-sm ${
-																idx === iterations.length - 1
-																	? 'border-blue-500 shadow-md'
-																	: 'border-gray-200'
-															}`}
+															className={`w-20 h-28 rounded-lg overflow-hidden border shadow-sm ${idx === iterations.length - 1
+																? 'border-blue-500 shadow-md'
+																: 'border-gray-200'
+																}`}
 														>
 															<img
 																src={iter.resultUrl}
@@ -596,6 +596,23 @@ export const MainApp: React.FC = () => {
                     background: #4A192C;
                     color: white;
                 }
+                .floating-nav {
+                    background: rgba(255, 255, 255, 0.85);
+                    backdrop-filter: blur(20px);
+                    -webkit-backdrop-filter: blur(20px);
+                    border: 1px solid rgba(255, 255, 255, 0.6);
+                    box-shadow: 
+                        0 4px 24px rgba(0, 0, 0, 0.06),
+                        0 1px 2px rgba(0, 0, 0, 0.04),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+                    transition: all 0.3s ease;
+                }
+                .floating-nav:hover {
+                    box-shadow: 
+                        0 8px 32px rgba(0, 0, 0, 0.1),
+                        0 2px 4px rgba(0, 0, 0, 0.06),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+                }
             `}</style>
 
 			{/* Floating Particles */}
@@ -617,50 +634,81 @@ export const MainApp: React.FC = () => {
 				))}
 			</div>
 
-			{/* Header */}
-			<header className="relative z-10 max-w-6xl mx-auto px-6 py-6 flex items-center justify-between">
-				<Link
-					to="/"
-					className="flex items-center gap-2 text-gray-900 hover:text-gray-600 transition-colors relative z-20"
-				>
-					<Dress01Icon size={24} />
-					<span
-						className="hidden sm:inline text-xl font-semibold tracking-wide"
-						style={{ fontFamily: "'Cormorant Garamond', serif" }}
+			{/* Floating Header */}
+			<div className="relative z-10 px-4 sm:px-6 pt-4 sm:pt-6">
+				<header className="floating-nav max-w-4xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between rounded-full">
+					<Link
+						to="/"
+						className="flex items-center gap-2 text-gray-900 hover:text-gray-600 transition-colors"
 					>
-						StyleDiff
-					</span>
-				</Link>
+						<Dress01Icon size={22} />
+						<span
+							className="hidden sm:inline text-lg font-semibold tracking-wide"
+							style={{ fontFamily: "'Cormorant Garamond', serif" }}
+						>
+							StyleDiff
+						</span>
+					</Link>
 
-				<div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 text-sm font-medium z-10">
-					<div className="flex items-center bg-white rounded-full p-1 border border-gray-100 shadow-sm scale-90 sm:scale-100">
+					<Link
+						to="/"
+						className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-600"
+					>
+						<Home01Icon size={20} />
+					</Link>
+				</header>
+			</div>
+
+			{/* Step Indicator */}
+			<div className="relative z-10 px-4 sm:px-6 pt-6 sm:pt-8">
+				<div className="max-w-md mx-auto">
+					<div className="flex items-center justify-between relative">
+						{/* Progress Line Background */}
+						<div className="absolute top-5 left-[10%] right-[10%] h-0.5 bg-gray-200 rounded-full"></div>
+						{/* Progress Line Fill */}
 						<div
-							className={`px-3 py-1 sm:px-4 sm:py-1.5 rounded-full transition-all ${currentStep === 1 ? 'bg-gray-900 text-white' : 'text-gray-400'}`}
-						>
-							1
+							className="absolute top-5 left-[10%] h-0.5 bg-gradient-to-r from-[#4A192C] to-[#6B2C42] rounded-full transition-all duration-500 ease-out"
+							style={{ width: currentStep === 1 ? '0%' : currentStep === 2 ? '40%' : '80%' }}
+						></div>
+
+						{/* Step 1 - Upload */}
+						<div className="flex flex-col items-center relative z-10">
+							<div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${currentStep >= 1
+								? 'bg-gradient-to-br from-[#4A192C] to-[#6B2C42] text-white shadow-lg shadow-[#4A192C]/20'
+								: 'bg-gray-100 text-gray-400'
+								}`}>
+								<ImageUploadIcon size={18} />
+							</div>
+							<span className={`mt-2 text-xs font-medium transition-colors ${currentStep >= 1 ? 'text-gray-900' : 'text-gray-400'
+								}`}>Upload</span>
 						</div>
-						<div className="w-4 sm:w-8 h-px bg-gray-200 mx-0.5 sm:mx-1"></div>
-						<div
-							className={`px-3 py-1 sm:px-4 sm:py-1.5 rounded-full transition-all ${currentStep === 2 ? 'bg-gray-900 text-white' : 'text-gray-400'}`}
-						>
-							2
+
+						{/* Step 2 - Style */}
+						<div className="flex flex-col items-center relative z-10">
+							<div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${currentStep >= 2
+								? 'bg-gradient-to-br from-[#4A192C] to-[#6B2C42] text-white shadow-lg shadow-[#4A192C]/20'
+								: 'bg-gray-100 text-gray-400'
+								}`}>
+								<PencilEdit02Icon size={18} />
+							</div>
+							<span className={`mt-2 text-xs font-medium transition-colors ${currentStep >= 2 ? 'text-gray-900' : 'text-gray-400'
+								}`}>Style</span>
 						</div>
-						<div className="w-4 sm:w-8 h-px bg-gray-200 mx-0.5 sm:mx-1"></div>
-						<div
-							className={`px-3 py-1 sm:px-4 sm:py-1.5 rounded-full transition-all ${currentStep === 3 ? 'bg-gray-900 text-white' : 'text-gray-400'}`}
-						>
-							3
+
+						{/* Step 3 - Result */}
+						<div className="flex flex-col items-center relative z-10">
+							<div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${currentStep >= 3
+								? 'bg-gradient-to-br from-[#4A192C] to-[#6B2C42] text-white shadow-lg shadow-[#4A192C]/20'
+								: 'bg-gray-100 text-gray-400'
+								}`}>
+								<SparklesIcon size={18} />
+							</div>
+							<span className={`mt-2 text-xs font-medium transition-colors ${currentStep >= 3 ? 'text-gray-900' : 'text-gray-400'
+								}`}>Result</span>
 						</div>
 					</div>
 				</div>
-
-				<Link
-					to="/"
-					className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-600 relative z-20"
-				>
-					<Home01Icon size={20} />
-				</Link>
-			</header>
+			</div>
 
 			{/* Main Content */}
 			<main className="relative z-10 max-w-6xl mx-auto px-6 py-12 min-h-[600px] flex flex-col justify-center">

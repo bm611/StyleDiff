@@ -189,6 +189,23 @@ const LandingPage: React.FC = () => {
                     border-color: #4A192C;
                     box-shadow: 0 4px 12px rgba(74, 25, 44, 0.2);
                 }
+                .floating-nav {
+                    background: rgba(255, 255, 255, 0.85);
+                    backdrop-filter: blur(20px);
+                    -webkit-backdrop-filter: blur(20px);
+                    border: 1px solid rgba(255, 255, 255, 0.6);
+                    box-shadow: 
+                        0 4px 24px rgba(0, 0, 0, 0.06),
+                        0 1px 2px rgba(0, 0, 0, 0.04),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+                    transition: all 0.3s ease;
+                }
+                .floating-nav:hover {
+                    box-shadow: 
+                        0 8px 32px rgba(0, 0, 0, 0.1),
+                        0 2px 4px rgba(0, 0, 0, 0.06),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+                }
             `}</style>
 
             {/* Floating Particles */}
@@ -210,30 +227,32 @@ const LandingPage: React.FC = () => {
                 ))}
             </div>
 
-            {/* Navbar */}
-            <nav className="relative z-10 max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <Dress01Icon size={24} />
-                    <span className="text-xl font-semibold tracking-wide" style={{ fontFamily: "'Cormorant Garamond', serif" }}>StyleDiff</span>
-                </div>
-                <div className="flex items-center gap-3">
-                    <a
-                        href="https://github.com/bm611/StyleDiff"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="nav-btn"
-                    >
-                        <GithubIcon size={16} />
-                        GitHub
-                    </a>
-                    <Link
-                        to="/app"
-                        className="nav-btn"
-                    >
-                        Sign In
-                    </Link>
-                </div>
-            </nav>
+            {/* Floating Navbar */}
+            <div className="relative z-10 px-4 sm:px-6 pt-4 sm:pt-6">
+                <nav className="floating-nav max-w-4xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between rounded-full">
+                    <div className="flex items-center gap-2">
+                        <Dress01Icon size={22} />
+                        <span className="text-lg sm:text-xl font-semibold tracking-wide" style={{ fontFamily: "'Cormorant Garamond', serif" }}>StyleDiff</span>
+                    </div>
+                    <div className="flex items-center gap-2 sm:gap-3">
+                        <a
+                            href="https://github.com/bm611/StyleDiff"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="nav-btn text-xs sm:text-sm py-1.5 sm:py-2 px-3 sm:px-4"
+                        >
+                            <GithubIcon size={14} />
+                            <span className="hidden sm:inline">GitHub</span>
+                        </a>
+                        <Link
+                            to="/app"
+                            className="nav-btn text-xs sm:text-sm py-1.5 sm:py-2 px-3 sm:px-4"
+                        >
+                            Sign In
+                        </Link>
+                    </div>
+                </nav>
+            </div>
 
             {/* Hero Section */}
             <div className="relative z-10 max-w-4xl mx-auto px-6 pt-24 pb-16 text-center">
@@ -245,7 +264,7 @@ const LandingPage: React.FC = () => {
                 <h1 className="animate-fade-in delay-100 text-5xl md:text-7xl font-medium tracking-tight mb-6 leading-[1.1]" style={{ fontFamily: "'Playfair Display', serif" }}>
                     Reimagine your <span className="italic">style</span>
                 </h1>
-                
+
                 <p className="animate-fade-in delay-200 text-2xl md:text-3xl text-gray-400 font-normal mb-12" style={{ fontFamily: "'Playfair Display', serif" }}>
                     powered by imagination
                 </p>
