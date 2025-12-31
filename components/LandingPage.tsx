@@ -74,17 +74,24 @@ const LandingPage: React.FC = () => {
                 }
                 .step-card {
                     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                    background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
-                    border: 2.5px solid #4A192C;
-                    border-radius: 24px;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.05), 0 8px 24px rgba(0,0,0,0.02);
-                    backdrop-filter: blur(10px);
+                    background: rgba(255, 255, 255, 0.7);
+                    backdrop-filter: blur(12px);
+                    -webkit-backdrop-filter: blur(12px);
+                    border: 1.5px solid rgba(26, 26, 26, 0.15);
+                    border-radius: 20px;
+                    box-shadow: 
+                        0 2px 8px rgba(0, 0, 0, 0.04),
+                        0 8px 24px rgba(0, 0, 0, 0.02),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.5);
                 }
                 .step-card:hover {
-                    transform: translateY(-8px) scale(1.02);
-                    box-shadow: 0 16px 48px rgba(0,0,0,0.14), 0 8px 20px rgba(0,0,0,0.08);
+                    transform: translateY(-6px);
+                    box-shadow: 
+                        0 12px 40px rgba(74, 25, 44, 0.12),
+                        0 8px 20px rgba(0, 0, 0, 0.06),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.6);
                     border-color: #4A192C;
-                    background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
+                    background: rgba(255, 255, 255, 0.9);
                 }
                 .card-gradient {
                     position: absolute;
@@ -171,11 +178,11 @@ const LandingPage: React.FC = () => {
                     box-shadow: 0 8px 24px rgba(0,0,0,0.15);
                 }
                 .nav-btn {
-                    border: 2.5px solid #4A192C;
+                    border: 1.5px solid #1a1a1a;
                     border-radius: 9999px;
-                    color: #4A192C;
-                    background: white;
-                    transition: all 0.3s ease;
+                    color: #1a1a1a;
+                    background: transparent;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                     display: flex;
                     align-items: center;
                     gap: 0.5rem;
@@ -187,7 +194,8 @@ const LandingPage: React.FC = () => {
                     background: #4A192C;
                     color: white;
                     border-color: #4A192C;
-                    box-shadow: 0 4px 12px rgba(74, 25, 44, 0.2);
+                    box-shadow: 0 4px 16px rgba(74, 25, 44, 0.25);
+                    transform: translateY(-1px);
                 }
                 .floating-nav {
                     background: rgba(255, 255, 255, 0.85);
@@ -343,83 +351,54 @@ const LandingPage: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Mobile Tab View */}
-                <div className="md:hidden">
-                    {/* Tab Buttons */}
-                    <div className="flex gap-3 justify-center mb-6">
-                        <button
-                            onClick={() => setActiveTab(0)}
-                            className={`tab-button ${activeTab === 0 ? 'active' : ''}`}
-                        >
-                            01
-                        </button>
-                        <button
-                            onClick={() => setActiveTab(1)}
-                            className={`tab-button ${activeTab === 1 ? 'active' : ''}`}
-                        >
-                            02
-                        </button>
-                        <button
-                            onClick={() => setActiveTab(2)}
-                            className={`tab-button ${activeTab === 2 ? 'active' : ''}`}
-                        >
-                            03
-                        </button>
+                {/* Mobile Compact View */}
+                <div className="md:hidden space-y-3">
+                    {/* Step 1 - Upload */}
+                    <div className="mobile-step-card flex items-center gap-4 p-4 rounded-2xl bg-white/80 backdrop-blur-sm border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02]">
+                        <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-sky-100 to-blue-100 flex items-center justify-center shadow-sm">
+                            <ImageUploadIcon size={22} className="text-sky-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <h3 className="text-base font-semibold text-gray-900" style={{ fontFamily: "'Playfair Display', serif" }}>
+                                Upload Your Look
+                            </h3>
+                            <p className="text-gray-500 text-xs mt-0.5 truncate">
+                                Start with a photo of yourself
+                            </p>
+                        </div>
+                        <span className="flex-shrink-0 text-2xl font-bold text-gray-200">01</span>
                     </div>
 
-                    {/* Card Display */}
-                    <div key={activeTab} className="card-enter">
-                        {activeTab === 0 && (
-                            <div className="step-card overflow-hidden relative h-56">
-                                <div className="p-5 relative z-10">
-                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-100 to-blue-100 flex items-center justify-center mb-4 shadow-sm">
-                                        <ImageUploadIcon size={24} className="text-sky-600" />
-                                    </div>
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
-                                        Upload Your Look
-                                    </h3>
-                                    <p className="text-gray-600 text-sm leading-relaxed">
-                                        Start with a photo of yourself as the base.
-                                    </p>
-                                </div>
-                                <div className="card-gradient gradient-blue"></div>
-                                <span className="card-number">01</span>
-                            </div>
-                        )}
-                        {activeTab === 1 && (
-                            <div className="step-card overflow-hidden relative h-56">
-                                <div className="p-5 relative z-10">
-                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center mb-4 shadow-sm">
-                                        <PencilEdit02Icon size={24} className="text-purple-600" />
-                                    </div>
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
-                                        Describe Changes
-                                    </h3>
-                                    <p className="text-gray-600 text-sm leading-relaxed">
-                                        Tell us the style or add a reference image.
-                                    </p>
-                                </div>
-                                <div className="card-gradient gradient-purple"></div>
-                                <span className="card-number">02</span>
-                            </div>
-                        )}
-                        {activeTab === 2 && (
-                            <div className="step-card overflow-hidden relative h-56">
-                                <div className="p-5 relative z-10">
-                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-100 to-yellow-100 flex items-center justify-center mb-4 shadow-sm">
-                                        <SparklesIcon size={24} className="text-amber-600" />
-                                    </div>
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
-                                        Get Your Style
-                                    </h3>
-                                    <p className="text-gray-600 text-sm leading-relaxed">
-                                        Receive your new look and iterate further.
-                                    </p>
-                                </div>
-                                <div className="card-gradient gradient-gold"></div>
-                                <span className="card-number">03</span>
-                            </div>
-                        )}
+                    {/* Step 2 - Describe */}
+                    <div className="mobile-step-card flex items-center gap-4 p-4 rounded-2xl bg-white/80 backdrop-blur-sm border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02]">
+                        <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center shadow-sm">
+                            <PencilEdit02Icon size={22} className="text-purple-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <h3 className="text-base font-semibold text-gray-900" style={{ fontFamily: "'Playfair Display', serif" }}>
+                                Describe Changes
+                            </h3>
+                            <p className="text-gray-500 text-xs mt-0.5 truncate">
+                                Tell us the style you want
+                            </p>
+                        </div>
+                        <span className="flex-shrink-0 text-2xl font-bold text-gray-200">02</span>
+                    </div>
+
+                    {/* Step 3 - Generate */}
+                    <div className="mobile-step-card flex items-center gap-4 p-4 rounded-2xl bg-white/80 backdrop-blur-sm border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02]">
+                        <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-amber-100 to-yellow-100 flex items-center justify-center shadow-sm">
+                            <SparklesIcon size={22} className="text-amber-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <h3 className="text-base font-semibold text-gray-900" style={{ fontFamily: "'Playfair Display', serif" }}>
+                                Get Your Style
+                            </h3>
+                            <p className="text-gray-500 text-xs mt-0.5 truncate">
+                                Receive your new look instantly
+                            </p>
+                        </div>
+                        <span className="flex-shrink-0 text-2xl font-bold text-gray-200">03</span>
                     </div>
                 </div>
             </div>

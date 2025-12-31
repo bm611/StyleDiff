@@ -586,15 +586,18 @@ export const MainApp: React.FC = () => {
                     border-color: rgba(0,0,0,0.1);
                 }
                 .action-btn {
-                    border: 2.5px solid #4A192C;
-                    color: #4A192C;
-                    background: white;
+                    border: 1.5px solid #1a1a1a;
+                    color: #1a1a1a;
+                    background: transparent;
                     border-radius: 9999px;
-                    transition: all 0.3s ease;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 }
                 .action-btn:hover {
                     background: #4A192C;
                     color: white;
+                    border-color: #4A192C;
+                    box-shadow: 0 4px 16px rgba(74, 25, 44, 0.25);
+                    transform: translateY(-1px);
                 }
                 .floating-nav {
                     background: rgba(255, 255, 255, 0.85);
