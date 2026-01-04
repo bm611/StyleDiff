@@ -308,22 +308,6 @@ const LandingPage: React.FC = () => {
 									<Logout01Icon size={14} />
 									<span className="hidden sm:inline">Sign Out</span>
 								</button>
-								<div
-									className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center border border-gray-200"
-									title={user.user_metadata.full_name || user.email}
-								>
-									<span
-										className="text-sm font-semibold text-gray-700"
-										style={{ fontFamily: "'Playfair Display', serif" }}
-									>
-										{(user.user_metadata.full_name || user.email || '?')
-											.split(' ')
-											.map((n: string) => n[0])
-											.join('')
-											.substring(0, 2)
-											.toUpperCase()}
-									</span>
-								</div>
 							</div>
 						) : (
 							<button
@@ -354,7 +338,16 @@ const LandingPage: React.FC = () => {
 					className="animate-fade-in delay-100 text-5xl md:text-7xl font-medium tracking-tight mb-6 leading-[1.1]"
 					style={{ fontFamily: "'Playfair Display', serif" }}
 				>
-					Reimagine your <span className="italic">style</span>
+					{user ? (
+						<>
+							{(user.user_metadata.full_name || user.email || 'there').split(' ')[0]}, reimagine
+							your <span className="italic">style</span>
+						</>
+					) : (
+						<>
+							Reimagine your <span className="italic">style</span>
+						</>
+					)}
 				</h1>
 
 				<p
