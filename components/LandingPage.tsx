@@ -274,16 +274,18 @@ const LandingPage: React.FC = () => {
                             <span className="hidden sm:inline">GitHub</span>
                         </a>
                         {user ? (
-                            <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-gray-700 hidden sm:inline-block" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.1rem' }}>
-                                    {user.user_metadata.full_name || user.email?.split('@')[0]}
-                                </span>
+                            <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => supabase.auth.signOut()}
                                     className="nav-btn text-xs sm:text-sm py-1.5 sm:py-2 px-3 sm:px-4"
                                 >
                                     Sign Out
                                 </button>
+                                <div className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center border border-gray-200" title={user.user_metadata.full_name || user.email}>
+                                    <span className="text-sm font-semibold text-gray-700" style={{ fontFamily: "'Playfair Display', serif" }}>
+                                        {((user.user_metadata.full_name || user.email || '?').split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase())}
+                                    </span>
+                                </div>
                             </div>
                         ) : (
                             <button
