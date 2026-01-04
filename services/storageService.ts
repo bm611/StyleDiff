@@ -65,9 +65,15 @@ export async function uploadBaseImage(userId: string, base64Image: string): Prom
 }
 
 // Convert URL to Blob by fetching the image
-async function urlToBlob(url: string): Promise<Blob> {
-  const response = await fetch(url);
-  return await response.blob();
+async function urlToBlob(url: string): Promise<Blob | null> {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) return null;
+    return await response.blob();
+  } catch (err) {
+    console.error('CORS or fetch error for URL:', err);
+    return null;
+  }
 }
 
 // Upload generated design to storage and save metadata
@@ -78,39 +84,59 @@ export async function saveGeneratedDesign(
   prompt: string
 ): Promise<SavedDesign | null> {
   try {
-    // Handle both base64 and URL sources
-    let blob: Blob;
+    let finalImageUrl = imageSource;
+    
+    // Try to upload to our storage if possible
     if (imageSource.startsWith('data:')) {
-      blob = base64ToBlob(imageSource);
+      // It's base64, upload to storage
+      const blob = base64ToBlob(imageSource);
+      const fileName = `${userId}/${Date.now()}.png`;
+      
+      const { data, error } = await supabase.storage
+        .from(GENERATED_DESIGNS_BUCKET)
+        .upload(fileName, blob, {
+          contentType: 'image/png',
+          upsert: false
+        });
+      
+      if (error) {
+        console.error('Error uploading generated design:', error);
+        // Still save with external URL
+      } else {
+        const { data: urlData } = supabase.storage
+          .from(GENERATED_DESIGNS_BUCKET)
+          .getPublicUrl(data.path);
+        finalImageUrl = urlData.publicUrl;
+      }
     } else {
-      // It's a URL, fetch and convert to blob
-      blob = await urlToBlob(imageSource);
+      // It's a URL - try to fetch and upload, but if CORS fails, use the URL directly
+      const blob = await urlToBlob(imageSource);
+      if (blob) {
+        const fileName = `${userId}/${Date.now()}.png`;
+        const { data, error } = await supabase.storage
+          .from(GENERATED_DESIGNS_BUCKET)
+          .upload(fileName, blob, {
+            contentType: 'image/png',
+            upsert: false
+          });
+        
+        if (!error && data) {
+          const { data: urlData } = supabase.storage
+            .from(GENERATED_DESIGNS_BUCKET)
+            .getPublicUrl(data.path);
+          finalImageUrl = urlData.publicUrl;
+        }
+      }
+      // If blob is null (CORS failed), we'll use the original URL
     }
-    const fileName = `${userId}/${Date.now()}.png`;
     
-    const { data, error } = await supabase.storage
-      .from(GENERATED_DESIGNS_BUCKET)
-      .upload(fileName, blob, {
-        contentType: 'image/png',
-        upsert: false
-      });
-    
-    if (error) {
-      console.error('Error uploading generated design:', error);
-      return null;
-    }
-    
-    const { data: urlData } = supabase.storage
-      .from(GENERATED_DESIGNS_BUCKET)
-      .getPublicUrl(data.path);
-    
-    // Save metadata to database
+    // Save metadata to database (with either our storage URL or external URL)
     const { data: designData, error: dbError } = await supabase
       .from('user_designs')
       .insert({
         user_id: userId,
         base_image_url: baseImageUrl,
-        generated_image_url: urlData.publicUrl,
+        generated_image_url: finalImageUrl,
         prompt: prompt
       })
       .select()
@@ -121,6 +147,7 @@ export async function saveGeneratedDesign(
       return null;
     }
     
+    console.log('Design saved to database:', designData);
     return designData as SavedDesign;
   } catch (err) {
     console.error('Error in saveGeneratedDesign:', err);
