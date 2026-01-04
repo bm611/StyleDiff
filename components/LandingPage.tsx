@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { GithubIcon, Dress01Icon, ImageUploadIcon, PencilEdit02Icon, SparklesIcon } from 'hugeicons-react';
+import { supabase } from '../services/supabaseClient';
+import { User } from '@supabase/supabase-js';
+import { AuthModal } from './AuthModal';
 
 interface Particle {
     id: number;
@@ -14,8 +17,20 @@ interface Particle {
 const LandingPage: React.FC = () => {
     const [particles, setParticles] = useState<Particle[]>([]);
     const [activeTab, setActiveTab] = useState(0);
+    const [user, setUser] = useState<User | null>(null);
+    const [showAuthModal, setShowAuthModal] = useState(false);
 
     useEffect(() => {
+        // Auth subscription
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setUser(session?.user ?? null);
+        });
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null);
+        });
+
+        // Particles generation
         const generated: Particle[] = [];
         for (let i = 0; i < 150; i++) {
             generated.push({
@@ -28,10 +43,13 @@ const LandingPage: React.FC = () => {
             });
         }
         setParticles(generated);
+
+        return () => subscription.unsubscribe();
     }, []);
 
     return (
         <div className="min-h-screen bg-[#fafafa] text-gray-900 overflow-hidden relative">
+            <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
             <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet" />
             <style>{`
                 @keyframes float {
@@ -74,60 +92,63 @@ const LandingPage: React.FC = () => {
                 }
                 .step-card {
                     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                    background: rgba(255, 255, 255, 0.7);
-                    backdrop-filter: blur(12px);
-                    -webkit-backdrop-filter: blur(12px);
-                    border: 1.5px solid rgba(26, 26, 26, 0.15);
-                    border-radius: 20px;
+                    background: rgba(255, 255, 255, 0.6);
+                    backdrop-filter: blur(20px);
+                    -webkit-backdrop-filter: blur(20px);
+                    border: 1px solid rgba(0, 0, 0, 0.04);
+                    border-radius: 32px;
                     box-shadow: 
-                        0 2px 8px rgba(0, 0, 0, 0.04),
-                        0 8px 24px rgba(0, 0, 0, 0.02),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+                        0 4px 24px -1px rgba(0, 0, 0, 0.02),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+                    position: relative;
+                    overflow: hidden;
+                    height: 100%;
                 }
                 .step-card:hover {
-                    transform: translateY(-6px);
+                    transform: translateY(-8px);
+                    background: #ffffff;
                     box-shadow: 
-                        0 12px 40px rgba(74, 25, 44, 0.12),
-                        0 8px 20px rgba(0, 0, 0, 0.06),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.6);
-                    border-color: #4A192C;
-                    background: rgba(255, 255, 255, 0.9);
+                        0 30px 60px -12px rgba(0, 0, 0, 0.12),
+                        0 12px 24px -8px rgba(0, 0, 0, 0.06);
+                    border-color: rgba(0, 0, 0, 0.12);
                 }
                 .card-gradient {
                     position: absolute;
-                    top: 0;
-                    right: 0;
-                    width: 150px;
-                    height: 150px;
-                    opacity: 0.3;
-                    transition: all 0.4s ease;
-                    border-radius: 50%;
+                    inset: 0;
+                    opacity: 0;
+                    transition: opacity 0.5s ease;
+                    background: radial-gradient(800px circle at top right, var(--card-color), transparent 40%);
+                    pointer-events: none;
                 }
                 .step-card:hover .card-gradient {
-                    opacity: 0.5;
-                    transform: scale(1.2);
+                    opacity: 0.1;
                 }
-                .gradient-blue {
-                    background: radial-gradient(circle, rgba(56, 189, 248, 0.4) 0%, rgba(14, 165, 233, 0) 100%);
+                .card-icon-bg {
+                    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+                    background: rgba(255,255,255,0.6);
+                    border: 1px solid rgba(255,255,255,0.4);
                 }
-                .gradient-purple {
-                    background: radial-gradient(circle, rgba(192, 132, 252, 0.4) 0%, rgba(168, 85, 247, 0) 100%);
-                }
-                .gradient-gold {
-                    background: radial-gradient(circle, rgba(234, 179, 8, 0.3) 0%, rgba(132, 204, 22, 0) 100%);
+                .step-card:hover .card-icon-bg {
+                    transform: scale(1.1) rotate(5deg);
+                    background: white;
+                    box-shadow: 0 12px 24px -8px rgba(0,0,0,0.1);
+                    border-color: white;
                 }
                 .card-number {
-                    font-size: 3.5rem;
+                    font-family: 'Playfair Display', serif;
+                    font-size: 5rem;
                     font-weight: 700;
-                    background: linear-gradient(135deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.05) 100%);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    background-clip: text;
+                    color: rgba(0,0,0,0.03);
                     position: absolute;
-                    bottom: 1rem;
-                    right: 1.5rem;
+                    bottom: -1rem;
+                    right: -0.5rem;
                     line-height: 1;
-                    letter-spacing: -0.05em;
+                    transition: all 0.5s ease;
+                    user-select: none;
+                }
+                .step-card:hover .card-number {
+                    color: rgba(0,0,0,0.06);
+                    transform: translateX(-10px) translateY(-10px);
                 }
                 @keyframes slideInRight {
                     from {
@@ -252,12 +273,26 @@ const LandingPage: React.FC = () => {
                             <GithubIcon size={14} />
                             <span className="hidden sm:inline">GitHub</span>
                         </a>
-                        <Link
-                            to="/app"
-                            className="nav-btn text-xs sm:text-sm py-1.5 sm:py-2 px-3 sm:px-4"
-                        >
-                            Sign In
-                        </Link>
+                        {user ? (
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium text-gray-700 hidden sm:inline-block" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.1rem' }}>
+                                    {user.user_metadata.full_name || user.email?.split('@')[0]}
+                                </span>
+                                <button
+                                    onClick={() => supabase.auth.signOut()}
+                                    className="nav-btn text-xs sm:text-sm py-1.5 sm:py-2 px-3 sm:px-4"
+                                >
+                                    Sign Out
+                                </button>
+                            </div>
+                        ) : (
+                            <button
+                                onClick={() => setShowAuthModal(true)}
+                                className="nav-btn text-xs sm:text-sm py-1.5 sm:py-2 px-3 sm:px-4"
+                            >
+                                Sign In
+                            </button>
+                        )}
                     </div>
                 </nav>
             </div>
@@ -297,108 +332,56 @@ const LandingPage: React.FC = () => {
 
             {/* 3-Step Process Cards */}
             <div className="relative z-10 max-w-5xl mx-auto px-6 pb-24">
-                {/* Desktop Grid View */}
-                <div className="hidden md:grid grid-cols-3 gap-5">
-                    {/* Card 1 - Upload */}
-                    <div className="step-card overflow-hidden relative h-56">
-                        <div className="p-5 relative z-10">
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-100 to-blue-100 flex items-center justify-center mb-4 shadow-sm">
-                                <ImageUploadIcon size={24} className="text-sky-600" />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Card 1 */}
+                    <div className="step-card group" style={{ '--card-color': '#0ea5e9' } as React.CSSProperties}>
+                        <div className="card-gradient"></div>
+                        <div className="p-8 relative z-10 flex flex-col h-full">
+                            <div className="card-icon-bg w-14 h-14 rounded-2xl flex items-center justify-center mb-6 text-sky-600 shadow-sm">
+                                <ImageUploadIcon size={26} />
                             </div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                            <h3 className="text-xl font-semibold text-gray-900 mb-3" style={{ fontFamily: "'Playfair Display', serif" }}>
                                 Upload Your Look
                             </h3>
-                            <p className="text-gray-600 text-sm leading-relaxed">
-                                Start with a photo of yourself as the base.
+                            <p className="text-gray-500 leading-relaxed mb-4">
+                                Start your transformation with a simple photo. We use it as the perfect canvas for your new style.
                             </p>
+                            <span className="card-number">01</span>
                         </div>
-                        <div className="card-gradient gradient-blue"></div>
-                        <span className="card-number">01</span>
                     </div>
 
-                    {/* Card 2 - Describe */}
-                    <div className="step-card overflow-hidden relative h-56">
-                        <div className="p-5 relative z-10">
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center mb-4 shadow-sm">
-                                <PencilEdit02Icon size={24} className="text-purple-600" />
+                    {/* Card 2 */}
+                    <div className="step-card group" style={{ '--card-color': '#a855f7' } as React.CSSProperties}>
+                        <div className="card-gradient"></div>
+                        <div className="p-8 relative z-10 flex flex-col h-full">
+                            <div className="card-icon-bg w-14 h-14 rounded-2xl flex items-center justify-center mb-6 text-purple-600 shadow-sm">
+                                <PencilEdit02Icon size={26} />
                             </div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                            <h3 className="text-xl font-semibold text-gray-900 mb-3" style={{ fontFamily: "'Playfair Display', serif" }}>
                                 Describe Changes
                             </h3>
-                            <p className="text-gray-600 text-sm leading-relaxed">
-                                Tell us the style or add a reference image.
+                            <p className="text-gray-500 leading-relaxed mb-4">
+                                Use text or reference images to guide the AI. Be as specific or as abstract as you like.
                             </p>
+                            <span className="card-number">02</span>
                         </div>
-                        <div className="card-gradient gradient-purple"></div>
-                        <span className="card-number">02</span>
                     </div>
 
-                    {/* Card 3 - Generate */}
-                    <div className="step-card overflow-hidden relative h-56">
-                        <div className="p-5 relative z-10">
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-100 to-yellow-100 flex items-center justify-center mb-4 shadow-sm">
-                                <SparklesIcon size={24} className="text-amber-600" />
+                    {/* Card 3 */}
+                    <div className="step-card group" style={{ '--card-color': '#eab308' } as React.CSSProperties}>
+                        <div className="card-gradient"></div>
+                        <div className="p-8 relative z-10 flex flex-col h-full">
+                            <div className="card-icon-bg w-14 h-14 rounded-2xl flex items-center justify-center mb-6 text-amber-600 shadow-sm">
+                                <SparklesIcon size={26} />
                             </div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                            <h3 className="text-xl font-semibold text-gray-900 mb-3" style={{ fontFamily: "'Playfair Display', serif" }}>
                                 Get Your Style
                             </h3>
-                            <p className="text-gray-600 text-sm leading-relaxed">
-                                Receive your new look and iterate further.
+                            <p className="text-gray-500 leading-relaxed mb-4">
+                                Watch your new look emerge in seconds. Iterate, refine, and perfect your vision instantly.
                             </p>
+                            <span className="card-number">03</span>
                         </div>
-                        <div className="card-gradient gradient-gold"></div>
-                        <span className="card-number">03</span>
-                    </div>
-                </div>
-
-                {/* Mobile Compact View */}
-                <div className="md:hidden space-y-3">
-                    {/* Step 1 - Upload */}
-                    <div className="mobile-step-card flex items-center gap-4 p-4 rounded-2xl bg-white/80 backdrop-blur-sm border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02]">
-                        <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-sky-100 to-blue-100 flex items-center justify-center shadow-sm">
-                            <ImageUploadIcon size={22} className="text-sky-600" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <h3 className="text-base font-semibold text-gray-900" style={{ fontFamily: "'Playfair Display', serif" }}>
-                                Upload Your Look
-                            </h3>
-                            <p className="text-gray-500 text-xs mt-0.5 truncate">
-                                Start with a photo of yourself
-                            </p>
-                        </div>
-                        <span className="flex-shrink-0 text-2xl font-bold text-gray-200">01</span>
-                    </div>
-
-                    {/* Step 2 - Describe */}
-                    <div className="mobile-step-card flex items-center gap-4 p-4 rounded-2xl bg-white/80 backdrop-blur-sm border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02]">
-                        <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center shadow-sm">
-                            <PencilEdit02Icon size={22} className="text-purple-600" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <h3 className="text-base font-semibold text-gray-900" style={{ fontFamily: "'Playfair Display', serif" }}>
-                                Describe Changes
-                            </h3>
-                            <p className="text-gray-500 text-xs mt-0.5 truncate">
-                                Tell us the style you want
-                            </p>
-                        </div>
-                        <span className="flex-shrink-0 text-2xl font-bold text-gray-200">02</span>
-                    </div>
-
-                    {/* Step 3 - Generate */}
-                    <div className="mobile-step-card flex items-center gap-4 p-4 rounded-2xl bg-white/80 backdrop-blur-sm border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02]">
-                        <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-amber-100 to-yellow-100 flex items-center justify-center shadow-sm">
-                            <SparklesIcon size={22} className="text-amber-600" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <h3 className="text-base font-semibold text-gray-900" style={{ fontFamily: "'Playfair Display', serif" }}>
-                                Get Your Style
-                            </h3>
-                            <p className="text-gray-500 text-xs mt-0.5 truncate">
-                                Receive your new look instantly
-                            </p>
-                        </div>
-                        <span className="flex-shrink-0 text-2xl font-bold text-gray-200">03</span>
                     </div>
                 </div>
             </div>

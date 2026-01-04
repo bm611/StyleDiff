@@ -242,8 +242,8 @@ export const MainApp: React.FC = () => {
 							</p>
 						</div>
 
-						<div className="grid grid-cols-1 md:grid-cols-5 gap-6 sm:gap-8">
-							<div className="md:col-span-3 space-y-4">
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+							<div className="space-y-4">
 								<div>
 									<label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
 										Description
@@ -272,11 +272,11 @@ export const MainApp: React.FC = () => {
 								</div>
 							</div>
 
-							<div className="md:col-span-2">
+							<div>
 								<label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
 									Reference (Optional)
 								</label>
-								<div className="w-full px-4 md:px-0 md:max-w-[240px]">
+								<div className="w-full px-4 md:px-0">
 									<Dropzone
 										label="Reference"
 										icon={PencilEdit02Icon}
