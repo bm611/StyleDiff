@@ -1,6 +1,6 @@
 import React from 'react';
 import { BaseImage } from '../types';
-import { ImageUploadIcon } from 'hugeicons-react';
+import { ArrowRight01Icon } from 'hugeicons-react';
 
 interface PreviousBaseImagesProps {
   images: BaseImage[];
@@ -16,17 +16,7 @@ const PreviousBaseImages: React.FC<PreviousBaseImagesProps> = ({
   if (isLoading) {
     return (
       <div className="mt-6">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-          Previously Used
-        </p>
-        <div className="flex gap-3 overflow-x-auto pb-2">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="w-16 h-20 rounded-lg bg-gray-100 animate-pulse flex-shrink-0"
-            />
-          ))}
-        </div>
+        <div className="h-12 bg-gray-100 rounded-xl animate-pulse" />
       </div>
     );
   }
@@ -35,32 +25,31 @@ const PreviousBaseImages: React.FC<PreviousBaseImagesProps> = ({
     return null;
   }
 
+  // Only use the most recent image
+  const lastImage = images[0];
+
   return (
     <div className="mt-6">
-      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-        Previously Used
-      </p>
-      <div className="flex gap-3 overflow-x-auto pb-2">
-        {images.map((image) => (
-          <button
-            key={image.id}
-            onClick={() => onSelect(image.url)}
-            className="w-16 h-20 rounded-lg overflow-hidden border-2 border-transparent hover:border-[#4A192C] transition-all flex-shrink-0 group relative"
-          >
-            <img
-              src={image.url}
-              alt="Previous upload"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-              <ImageUploadIcon
-                size={16}
-                className="text-white opacity-0 group-hover:opacity-100 transition-opacity"
-              />
-            </div>
-          </button>
-        ))}
-      </div>
+      <button
+        onClick={() => onSelect(lastImage.url)}
+        className="w-full flex items-center gap-4 p-3 rounded-xl border border-gray-200 hover:border-[#4A192C] hover:bg-gray-50 transition-all group"
+      >
+        <div className="w-12 h-16 rounded-lg overflow-hidden flex-shrink-0">
+          <img
+            src={lastImage.url}
+            alt="Last used"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="flex-1 text-left">
+          <p className="text-sm font-medium text-gray-700">Use last image</p>
+          <p className="text-xs text-gray-400">Continue with your previous photo</p>
+        </div>
+        <ArrowRight01Icon
+          size={18}
+          className="text-gray-400 group-hover:text-[#4A192C] transition-colors"
+        />
+      </button>
     </div>
   );
 };
