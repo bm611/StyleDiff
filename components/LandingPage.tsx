@@ -12,6 +12,9 @@ import {
 import { supabase } from '../services/supabaseClient';
 import { User } from '@supabase/supabase-js';
 import { AuthModal } from './AuthModal';
+import MyStyles from './MyStyles';
+import { SavedDesign } from '../types';
+import { getUserGeneratedDesigns } from '../services/storageService';
 
 interface Particle {
 	id: number;
@@ -27,6 +30,8 @@ const LandingPage: React.FC = () => {
 	const [activeTab, setActiveTab] = useState(0);
 	const [user, setUser] = useState<User | null>(null);
 	const [showAuthModal, setShowAuthModal] = useState(false);
+	const [savedDesigns, setSavedDesigns] = useState<SavedDesign[]>([]);
+	const [isLoadingDesigns, setIsLoadingDesigns] = useState(false);
 
 	useEffect(() => {
 		// Auth subscription
@@ -56,6 +61,25 @@ const LandingPage: React.FC = () => {
 
 		return () => subscription.unsubscribe();
 	}, []);
+
+	// Fetch user's saved designs
+	useEffect(() => {
+		if (user) {
+			setIsLoadingDesigns(true);
+			getUserGeneratedDesigns(user.id).then((designs) => {
+				setSavedDesigns(designs);
+				setIsLoadingDesigns(false);
+			});
+		} else {
+			setSavedDesigns([]);
+		}
+	}, [user]);
+
+	const refreshDesigns = () => {
+		if (user) {
+			getUserGeneratedDesigns(user.id).then(setSavedDesigns);
+		}
+	};
 
 	return (
 		<div className="min-h-screen bg-[#fafafa] text-gray-900 overflow-hidden relative">
@@ -376,82 +400,95 @@ const LandingPage: React.FC = () => {
 				</div>
 			</div>
 
-			{/* 3-Step Process Cards */}
-			<div className="relative z-10 max-w-5xl mx-auto px-6 pb-24">
-				<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-					{/* Card 1 */}
-					<div
-						className="step-card group"
-						style={{ '--card-color': '#0ea5e9' } as React.CSSProperties}
-					>
-						<div className="card-gradient"></div>
-						<div className="p-8 relative z-10 flex flex-col h-full">
-							<div className="card-icon-bg w-14 h-14 rounded-2xl flex items-center justify-center mb-6 text-sky-600 shadow-sm">
-								<ImageUploadIcon size={26} />
+			{/* 3-Step Process Cards - Only for non-logged in users */}
+			{!user && (
+				<div className="relative z-10 max-w-5xl mx-auto px-6 pb-24">
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+						{/* Card 1 */}
+						<div
+							className="step-card group"
+							style={{ '--card-color': '#0ea5e9' } as React.CSSProperties}
+						>
+							<div className="card-gradient"></div>
+							<div className="p-8 relative z-10 flex flex-col h-full">
+								<div className="card-icon-bg w-14 h-14 rounded-2xl flex items-center justify-center mb-6 text-sky-600 shadow-sm">
+									<ImageUploadIcon size={26} />
+								</div>
+								<h3
+									className="text-xl font-semibold text-gray-900 mb-3"
+									style={{ fontFamily: "'Playfair Display', serif" }}
+								>
+									Upload Your Look
+								</h3>
+								<p className="text-gray-500 leading-relaxed mb-4">
+									Start your transformation with a simple photo. We use it as the perfect canvas for
+									your new style.
+								</p>
+								<span className="card-number">01</span>
 							</div>
-							<h3
-								className="text-xl font-semibold text-gray-900 mb-3"
-								style={{ fontFamily: "'Playfair Display', serif" }}
-							>
-								Upload Your Look
-							</h3>
-							<p className="text-gray-500 leading-relaxed mb-4">
-								Start your transformation with a simple photo. We use it as the perfect canvas for
-								your new style.
-							</p>
-							<span className="card-number">01</span>
 						</div>
-					</div>
 
-					{/* Card 2 */}
-					<div
-						className="step-card group"
-						style={{ '--card-color': '#a855f7' } as React.CSSProperties}
-					>
-						<div className="card-gradient"></div>
-						<div className="p-8 relative z-10 flex flex-col h-full">
-							<div className="card-icon-bg w-14 h-14 rounded-2xl flex items-center justify-center mb-6 text-purple-600 shadow-sm">
-								<PencilEdit02Icon size={26} />
+						{/* Card 2 */}
+						<div
+							className="step-card group"
+							style={{ '--card-color': '#a855f7' } as React.CSSProperties}
+						>
+							<div className="card-gradient"></div>
+							<div className="p-8 relative z-10 flex flex-col h-full">
+								<div className="card-icon-bg w-14 h-14 rounded-2xl flex items-center justify-center mb-6 text-purple-600 shadow-sm">
+									<PencilEdit02Icon size={26} />
+								</div>
+								<h3
+									className="text-xl font-semibold text-gray-900 mb-3"
+									style={{ fontFamily: "'Playfair Display', serif" }}
+								>
+									Describe Changes
+								</h3>
+								<p className="text-gray-500 leading-relaxed mb-4">
+									Use text or reference images to guide the AI. Be as specific or as abstract as you
+									like.
+								</p>
+								<span className="card-number">02</span>
 							</div>
-							<h3
-								className="text-xl font-semibold text-gray-900 mb-3"
-								style={{ fontFamily: "'Playfair Display', serif" }}
-							>
-								Describe Changes
-							</h3>
-							<p className="text-gray-500 leading-relaxed mb-4">
-								Use text or reference images to guide the AI. Be as specific or as abstract as you
-								like.
-							</p>
-							<span className="card-number">02</span>
 						</div>
-					</div>
 
-					{/* Card 3 */}
-					<div
-						className="step-card group"
-						style={{ '--card-color': '#eab308' } as React.CSSProperties}
-					>
-						<div className="card-gradient"></div>
-						<div className="p-8 relative z-10 flex flex-col h-full">
-							<div className="card-icon-bg w-14 h-14 rounded-2xl flex items-center justify-center mb-6 text-amber-600 shadow-sm">
-								<SparklesIcon size={26} />
+						{/* Card 3 */}
+						<div
+							className="step-card group"
+							style={{ '--card-color': '#eab308' } as React.CSSProperties}
+						>
+							<div className="card-gradient"></div>
+							<div className="p-8 relative z-10 flex flex-col h-full">
+								<div className="card-icon-bg w-14 h-14 rounded-2xl flex items-center justify-center mb-6 text-amber-600 shadow-sm">
+									<SparklesIcon size={26} />
+								</div>
+								<h3
+									className="text-xl font-semibold text-gray-900 mb-3"
+									style={{ fontFamily: "'Playfair Display', serif" }}
+								>
+									Get Your Style
+								</h3>
+								<p className="text-gray-500 leading-relaxed mb-4">
+									Watch your new look emerge in seconds. Iterate, refine, and perfect your vision
+									instantly.
+								</p>
+								<span className="card-number">03</span>
 							</div>
-							<h3
-								className="text-xl font-semibold text-gray-900 mb-3"
-								style={{ fontFamily: "'Playfair Display', serif" }}
-							>
-								Get Your Style
-							</h3>
-							<p className="text-gray-500 leading-relaxed mb-4">
-								Watch your new look emerge in seconds. Iterate, refine, and perfect your vision
-								instantly.
-							</p>
-							<span className="card-number">03</span>
 						</div>
 					</div>
 				</div>
-			</div>
+			)}
+
+			{/* My Styles Section - Only for logged in users */}
+			{user && (
+				<div className="relative z-10 max-w-5xl mx-auto px-6 pb-24">
+					<MyStyles
+						designs={savedDesigns}
+						onRefresh={refreshDesigns}
+						isLoading={isLoadingDesigns}
+					/>
+				</div>
+			)}
 		</div>
 	);
 };

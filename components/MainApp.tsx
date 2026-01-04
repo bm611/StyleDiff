@@ -13,8 +13,12 @@ import {
 	Home01Icon
 } from 'hugeicons-react';
 import Dropzone from './Dropzone';
-import { AppState, GenerationRecord } from '../types';
+import PreviousBaseImages from './PreviousBaseImages';
+import { AppState, GenerationRecord, BaseImage } from '../types';
 import { editFashionImage } from '../services/geminiService';
+import { supabase } from '../services/supabaseClient';
+import { uploadBaseImage, getUserBaseImages, saveGeneratedDesign } from '../services/storageService';
+import { User } from '@supabase/supabase-js';
 
 interface Particle {
 	id: number;
@@ -53,6 +57,7 @@ export const MainApp: React.FC = () => {
 	const [currentStep, setCurrentStep] = useState<number>(1);
 	const [state, setState] = useState<AppState>({
 		sourceImage: null,
+		sourceImageUrl: null,
 		referenceImage: null,
 		isGenerating: false,
 		prompt: '',
@@ -64,11 +69,39 @@ export const MainApp: React.FC = () => {
 	const [particles, setParticles] = useState<Particle[]>([]);
 	const [iterations, setIterations] = useState<Iteration[]>([]);
 	const [iterationPrompt, setIterationPrompt] = useState<string>('');
+	const [user, setUser] = useState<User | null>(null);
+	const [previousBaseImages, setPreviousBaseImages] = useState<BaseImage[]>([]);
+	const [isLoadingBaseImages, setIsLoadingBaseImages] = useState(false);
+
+	// Auth listener
+	useEffect(() => {
+		supabase.auth.getSession().then(({ data: { session } }) => {
+			setUser(session?.user ?? null);
+		});
+
+		const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+			setUser(session?.user ?? null);
+		});
+
+		return () => subscription.unsubscribe();
+	}, []);
+
+	// Fetch previous base images when user is logged in
+	useEffect(() => {
+		if (user) {
+			setIsLoadingBaseImages(true);
+			getUserBaseImages(user.id).then((images) => {
+				setPreviousBaseImages(images);
+				setIsLoadingBaseImages(false);
+			});
+		} else {
+			setPreviousBaseImages([]);
+		}
+	}, [user]);
 
 	useEffect(() => {
 		const generated: Particle[] = [];
 		for (let i = 0; i < 80; i++) {
-			// Fewer particles than landing page
 			generated.push({
 				id: i,
 				x: Math.random() * 100,
@@ -88,14 +121,42 @@ export const MainApp: React.FC = () => {
 		}
 
 		setState((prev) => ({ ...prev, isGenerating: true, error: null }));
-		setCurrentStep(3); // Move to result step immediately to show loading state
+		setCurrentStep(3);
 
 		try {
+			// Upload base image to storage if user is logged in and it's a new image (base64)
+			let baseImageUrl = state.sourceImageUrl;
+			if (user && state.sourceImage.startsWith('data:') && !baseImageUrl) {
+				baseImageUrl = await uploadBaseImage(user.id, state.sourceImage);
+				if (baseImageUrl) {
+					setState((prev) => ({ ...prev, sourceImageUrl: baseImageUrl }));
+					// Refresh base images list
+					getUserBaseImages(user.id).then(setPreviousBaseImages);
+				}
+			}
+
 			const resultUrl = await editFashionImage(
 				state.sourceImage,
 				state.prompt,
 				state.referenceImage || undefined
 			);
+
+			// Save generated design to storage if user is logged in
+			if (user) {
+				// Use baseImageUrl if available, otherwise use sourceImage URL for previously selected images
+				const finalBaseImageUrl = baseImageUrl || state.sourceImageUrl || state.sourceImage;
+				if (finalBaseImageUrl) {
+					saveGeneratedDesign(user.id, resultUrl, finalBaseImageUrl, state.prompt)
+						.then((saved) => {
+							if (saved) {
+								console.log('Design saved successfully');
+							} else {
+								console.error('Failed to save design');
+							}
+						})
+						.catch((err) => console.error('Error saving design:', err));
+				}
+			}
 
 			const newRecord: GenerationRecord = {
 				id: Date.now().toString(),
@@ -125,7 +186,7 @@ export const MainApp: React.FC = () => {
 				isGenerating: false,
 				error: err.message || 'Something went wrong while generating. Please try again.'
 			}));
-			setCurrentStep(2); // Go back to step 2 on error
+			setCurrentStep(2);
 		}
 	};
 
@@ -133,6 +194,7 @@ export const MainApp: React.FC = () => {
 		setState((prev) => ({
 			...prev,
 			sourceImage: null,
+			sourceImageUrl: null,
 			referenceImage: null,
 			currentResult: null,
 			prompt: '',
@@ -141,6 +203,35 @@ export const MainApp: React.FC = () => {
 		setIterations([]);
 		setIterationPrompt('');
 		setCurrentStep(1);
+	};
+
+	const handleSelectPreviousImage = async (imageUrl: string) => {
+		try {
+			// Fetch the image and convert to base64 for the API
+			const response = await fetch(imageUrl);
+			const blob = await response.blob();
+			const reader = new FileReader();
+			
+			reader.onloadend = () => {
+				const base64 = reader.result as string;
+				setState((prev) => ({
+					...prev,
+					sourceImage: base64, // Use base64 for the API
+					sourceImageUrl: imageUrl, // Keep original URL for storage reference
+					currentResult: null
+				}));
+			};
+			reader.readAsDataURL(blob);
+		} catch (err) {
+			console.error('Error loading previous image:', err);
+			// Fallback to using URL directly
+			setState((prev) => ({
+				...prev,
+				sourceImage: imageUrl,
+				sourceImageUrl: imageUrl,
+				currentResult: null
+			}));
+		}
 	};
 
 	const handleIterate = async () => {
@@ -210,11 +301,18 @@ export const MainApp: React.FC = () => {
 							icon={ImageUploadIcon}
 							previewUrl={state.sourceImage}
 							onImageSelected={(base64) =>
-								setState((prev) => ({ ...prev, sourceImage: base64, currentResult: null }))
+								setState((prev) => ({ ...prev, sourceImage: base64, sourceImageUrl: null, currentResult: null }))
 							}
 							aspectRatio="aspect-[3/4]"
 							className="bg-white shadow-sm w-full"
 						/>
+						{user && (
+							<PreviousBaseImages
+								images={previousBaseImages}
+								onSelect={handleSelectPreviousImage}
+								isLoading={isLoadingBaseImages}
+							/>
+						)}
 						{state.sourceImage && (
 							<div className="mt-8 flex justify-center">
 								<button
