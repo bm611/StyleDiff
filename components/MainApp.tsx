@@ -8,7 +8,6 @@ import {
 	ArrowRight01Icon,
 	ArrowLeft01Icon,
 	Download01Icon,
-	Share01Icon,
 	RefreshIcon,
 	Home01Icon
 } from 'hugeicons-react';
@@ -16,18 +15,9 @@ import Dropzone from './Dropzone';
 import PreviousBaseImages from './PreviousBaseImages';
 import { AppState, GenerationRecord, BaseImage } from '../types';
 import { editFashionImage } from '../services/geminiService';
-import { supabase } from '../services/supabaseClient';
 import { uploadBaseImage, getUserBaseImages, saveGeneratedDesign } from '../services/storageService';
-import { User } from '@supabase/supabase-js';
-
-interface Particle {
-	id: number;
-	x: number;
-	y: number;
-	size: number;
-	opacity: number;
-	delay: number;
-}
+import { useAuth } from '../hooks/useAuth';
+import ParticlesBackground from './ParticlesBackground';
 
 interface Iteration {
 	sourceUrl: string;
@@ -54,6 +44,7 @@ const FASHION_SUGGESTIONS = [
 ];
 
 export const MainApp: React.FC = () => {
+	const { user } = useAuth();
 	const [currentStep, setCurrentStep] = useState<number>(1);
 	const [state, setState] = useState<AppState>({
 		sourceImage: null,
@@ -66,25 +57,10 @@ export const MainApp: React.FC = () => {
 		error: null
 	});
 
-	const [particles, setParticles] = useState<Particle[]>([]);
 	const [iterations, setIterations] = useState<Iteration[]>([]);
 	const [iterationPrompt, setIterationPrompt] = useState<string>('');
-	const [user, setUser] = useState<User | null>(null);
 	const [previousBaseImages, setPreviousBaseImages] = useState<BaseImage[]>([]);
 	const [isLoadingBaseImages, setIsLoadingBaseImages] = useState(false);
-
-	// Auth listener
-	useEffect(() => {
-		supabase.auth.getSession().then(({ data: { session } }) => {
-			setUser(session?.user ?? null);
-		});
-
-		const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-			setUser(session?.user ?? null);
-		});
-
-		return () => subscription.unsubscribe();
-	}, []);
 
 	// Fetch previous base images when user is logged in
 	useEffect(() => {
@@ -98,21 +74,6 @@ export const MainApp: React.FC = () => {
 			setPreviousBaseImages([]);
 		}
 	}, [user]);
-
-	useEffect(() => {
-		const generated: Particle[] = [];
-		for (let i = 0; i < 80; i++) {
-			generated.push({
-				id: i,
-				x: Math.random() * 100,
-				y: Math.random() * 100,
-				size: Math.random() * 4 + 1,
-				opacity: Math.random() * 0.4 + 0.1,
-				delay: Math.random() * 8
-			});
-		}
-		setParticles(generated);
-	}, []);
 
 	const handleSurpriseMe = () => {
 		const SURPRISE_PROMPTS = [
@@ -639,132 +600,8 @@ export const MainApp: React.FC = () => {
 
 	return (
 		<div className="min-h-screen bg-[#fafafa] text-gray-900 overflow-hidden relative">
-			<link
-				href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Cormorant+Garamond:wght@400;500;600&display=swap"
-				rel="stylesheet"
-			/>
-			<style>{`
-                @keyframes float {
-                    0%, 100% { transform: translateY(0px) translateX(0px); }
-                    25% { transform: translateY(-10px) translateX(5px); }
-                    50% { transform: translateY(-5px) translateX(-5px); }
-                    75% { transform: translateY(-15px) translateX(3px); }
-                }
-                @keyframes fadeIn {
-                    from { opacity: 0; transform: translateY(10px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                @keyframes shimmer {
-                    0% { background-position: -200% center; }
-                    100% { background-position: 200% center; }
-                }
-                .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
-                .fancy-btn {
-                    background: linear-gradient(135deg, #1a1a1a 0%, #333 50%, #1a1a1a 100%);
-                    background-size: 200% 200%;
-                    position: relative;
-                    overflow: hidden;
-                    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-                }
-                .fancy-btn::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: -100%;
-                    width: 100%;
-                    height: 100%;
-                    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-                    animation: shimmer 3s infinite;
-                }
-                .generate-btn {
-                    background: #ffffff;
-                    color: #4A192C;
-                    border: 2.5px solid #4A192C;
-                    font-family: 'Cormorant Garamond', serif;
-                    font-weight: 600;
-                    font-size: 1.25rem;
-                    letter-spacing: 0.1em;
-                    position: relative;
-                    overflow: hidden;
-                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                    box-shadow:
-                        0 1.4px 1.3px 0 rgba(91, 91, 91, 0.15),
-                        0 8.06px 8.06px 0 rgba(78, 78, 78, 0.04),
-                        0 16px 40px 0 rgba(0, 0, 0, 0.02);
-                }
-                .generate-btn:hover:not(:disabled) {
-                    background: #4A192C;
-                    color: #ffffff;
-                    transform: translateY(-1px);
-                    box-shadow:
-                        0 2px 4px 0 rgba(91, 91, 91, 0.18),
-                        0 10px 12px 0 rgba(78, 78, 78, 0.06),
-                        0 20px 50px 0 rgba(0, 0, 0, 0.03);
-                }
-                .generate-btn:active:not(:disabled) {
-                    transform: translateY(0);
-                    box-shadow: 0 1px 2px 0 rgba(0,0,0,0.1);
-                }
-                .generate-btn:disabled {
-                    opacity: 0.5;
-                    background: #f5f5f5;
-                    color: #999;
-                    cursor: not-allowed;
-                    box-shadow: none;
-                    border-color: rgba(0,0,0,0.1);
-                }
-                .action-btn {
-                    border: 1.5px solid #1a1a1a;
-                    color: #1a1a1a;
-                    background: transparent;
-                    border-radius: 9999px;
-                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                }
-                .action-btn:hover {
-                    background: #4A192C;
-                    color: white;
-                    border-color: #4A192C;
-                    box-shadow: 0 4px 16px rgba(74, 25, 44, 0.25);
-                    transform: translateY(-1px);
-                }
-                .floating-nav {
-                    background: rgba(255, 255, 255, 0.85);
-                    backdrop-filter: blur(20px);
-                    -webkit-backdrop-filter: blur(20px);
-                    border: 1px solid rgba(255, 255, 255, 0.6);
-                    box-shadow: 
-                        0 4px 24px rgba(0, 0, 0, 0.06),
-                        0 1px 2px rgba(0, 0, 0, 0.04),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.6);
-                    transition: all 0.3s ease;
-                }
-                .floating-nav:hover {
-                    box-shadow: 
-                        0 8px 32px rgba(0, 0, 0, 0.1),
-                        0 2px 4px rgba(0, 0, 0, 0.06),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.6);
-                }
-            `}</style>
-
-			{/* Floating Particles */}
-			<div className="absolute inset-0 overflow-hidden pointer-events-none">
-				{particles.map((p) => (
-					<div
-						key={p.id}
-						className="absolute rounded-full bg-blue-500"
-						style={{
-							left: `${p.x}%`,
-							top: `${p.y}%`,
-							width: `${p.size}px`,
-							height: `${p.size}px`,
-							opacity: p.opacity,
-							animation: `float ${6 + p.delay}s ease-in-out infinite`,
-							animationDelay: `${p.delay}s`
-						}}
-					/>
-				))}
-			</div>
-
+			<ParticlesBackground count={80} />
+			
 			{/* Floating Header */}
 			<div className="relative z-10 px-4 sm:px-6 pt-4 sm:pt-6">
 				<header className="floating-nav max-w-4xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between rounded-full">
