@@ -114,9 +114,23 @@ export const MainApp: React.FC = () => {
 		setParticles(generated);
 	}, []);
 
+	const handleSurpriseMe = () => {
+		const SURPRISE_PROMPTS = [
+			...FASHION_SUGGESTIONS.map(s => s.prompt),
+			'Avant-garde architectural fashion with exaggerated silhouettes and metallic fabrics.',
+			'A futuristic bioluminescent gown glowing in deep blue and purple hues.',
+			'70s disco fever: sequined jumpsuit with bell bottoms and platform shoes.',
+			'Steampunk explorer gear with leather corset, goggles, and brass accessories.',
+			'Ethereal fairy core aesthetic with sheer layers, pastel flowers, and butterfly motifs.',
+			'Neo-noir detective trench coat with a fedora and sharp tailored suit.'
+		];
+		const randomPrompt = SURPRISE_PROMPTS[Math.floor(Math.random() * SURPRISE_PROMPTS.length)];
+		setState((prev) => ({ ...prev, prompt: randomPrompt }));
+	};
+
 	const handleGenerate = async () => {
-		if (!state.sourceImage || !state.prompt) {
-			setState((prev) => ({ ...prev, error: 'Please provide a photo and a description.' }));
+		if (!state.sourceImage || (!state.prompt && !state.referenceImage)) {
+			setState((prev) => ({ ...prev, error: 'Please provide a photo and either a description or a reference style.' }));
 			return;
 		}
 
@@ -353,6 +367,22 @@ export const MainApp: React.FC = () => {
 										className="w-full h-32 sm:h-40 rounded-xl bg-white border border-gray-200 p-4 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none shadow-sm text-sm"
 									/>
 									<div className="mt-4 flex flex-wrap gap-2">
+										{/* Surprise Me Button */}
+										<button
+											onClick={handleSurpriseMe}
+											className="relative group p-[1px] rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-yellow-600 hover:scale-105 transition-transform shadow-sm hover:shadow-md"
+										>
+											<div className="px-3 py-1.5 bg-white rounded-full flex items-center gap-1.5 group-hover:bg-transparent group-hover:text-white transition-colors duration-300">
+												<SparklesIcon
+													size={12}
+													className="text-amber-500 group-hover:text-white transition-colors"
+												/>
+												<span className="text-[10px] sm:text-[11px] font-bold bg-gradient-to-r from-amber-600 to-orange-700 bg-clip-text text-transparent group-hover:text-white transition-colors">
+													Surprise Me
+												</span>
+											</div>
+										</button>
+
 										{FASHION_SUGGESTIONS.map((s, idx) => (
 											<button
 												key={idx}
@@ -393,8 +423,8 @@ export const MainApp: React.FC = () => {
 						<div className="hidden md:flex flex-col items-center gap-4 mt-12 pt-8 border-t border-gray-100">
 							<button
 								onClick={handleGenerate}
-								disabled={!state.prompt}
-								className={`generate-btn w-full max-w-sm px-10 py-5 rounded-xl flex items-center justify-center gap-2 transition-all ${!state.prompt
+								disabled={!state.prompt && !state.referenceImage}
+								className={`generate-btn w-full max-w-sm px-10 py-5 rounded-xl flex items-center justify-center gap-2 transition-all ${!state.prompt && !state.referenceImage
 									? 'opacity-50 cursor-not-allowed'
 									: 'hover:scale-[1.02] active:scale-[0.98]'
 									}`}
@@ -413,8 +443,8 @@ export const MainApp: React.FC = () => {
 						<div className="mt-8 flex md:hidden flex-col gap-3">
 							<button
 								onClick={handleGenerate}
-								disabled={!state.prompt}
-								className={`generate-btn w-full px-8 py-5 rounded-xl flex items-center justify-center gap-2 transition-all ${!state.prompt ? 'opacity-50 cursor-not-allowed' : 'active:scale-[0.98]'
+								disabled={!state.prompt && !state.referenceImage}
+								className={`generate-btn w-full px-8 py-5 rounded-xl flex items-center justify-center gap-2 transition-all ${!state.prompt && !state.referenceImage ? 'opacity-50 cursor-not-allowed' : 'active:scale-[0.98]'
 									}`}
 							>
 								<SparklesIcon size={20} /> Generate Look

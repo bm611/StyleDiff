@@ -3,7 +3,7 @@ export const editFashionImage = async (
   prompt: string,
   referenceBase64?: string
 ): Promise<string> => {
-  const apiKey = (process.env.TOGETHER_API_KEY as string);
+  const apiKey = (process.env.TOGETHER_API_KEY as string) || (import.meta.env.VITE_TOGETHER_API_KEY as string);
 
   if (!apiKey) {
     console.warn("Together API Key is missing. Make sure TOGETHER_API_KEY is set.");
@@ -17,16 +17,31 @@ export const editFashionImage = async (
   Only modify the clothing and accessories according to the user prompt. 
   Maintain photorealism and high resolution.`;
 
-  const finalPrompt = `${systemContext}\n\nUser Request: ${prompt}${referenceBase64 ? "\n\nNote: Please refer to the style of the garments in the prompt description for the new outfit." : ""}`;
+  // Construct reference_images array
+  // Index 0: Base Image (Person)
+  // Index 1: Reference Image (Style) - if exists
+  const reference_images = [sourceBase64];
+  if (referenceBase64) {
+    reference_images.push(referenceBase64);
+  }
+
+  let userInstruction = "";
+  if (referenceBase64) {
+      // User specific instruction: use the clothing style from index 1 into index 0
+      userInstruction = `Transfer the clothing style from image 2 onto the person in image 1. ${prompt}`;
+  } else {
+      userInstruction = `The person from image 1. ${prompt}`;
+  }
+
+  const finalPrompt = `${systemContext}\n\n${userInstruction}`;
 
   try {
     const payload: any = {
       model: "black-forest-labs/FLUX.2-pro",
       prompt: finalPrompt,
-      image_url: sourceBase64,
       width: 1024,
       height: 768,
-      n: 1,
+      reference_images: reference_images,
       response_format: "b64_json"
     };
 
