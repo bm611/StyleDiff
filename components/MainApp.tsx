@@ -317,7 +317,7 @@ export const MainApp: React.FC = () => {
 							onImageSelected={(base64) =>
 								setState((prev) => ({ ...prev, sourceImage: base64, sourceImageUrl: null, currentResult: null }))
 							}
-							aspectRatio="aspect-[3/4]"
+							aspectRatio="aspect-square"
 							className="bg-white shadow-sm w-full"
 						/>
 						{user && (
