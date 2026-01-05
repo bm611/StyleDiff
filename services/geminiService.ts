@@ -27,7 +27,7 @@ export const editFashionImage = async (
       width: 1024,
       height: 768,
       n: 1,
-      response_format: "url"
+      response_format: "b64_json"
     };
 
     const response = await fetch("https://api.together.xyz/v1/images/generations", {
@@ -48,11 +48,11 @@ export const editFashionImage = async (
     const data = await response.json();
 
     if (data.data && data.data[0]) {
-      if (data.data[0].url) {
-        return data.data[0].url;
-      }
       if (data.data[0].b64_json) {
         return `data:image/png;base64,${data.data[0].b64_json}`;
+      }
+      if (data.data[0].url) {
+        return data.data[0].url;
       }
     }
 
